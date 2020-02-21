@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# crawl 脚本 
+
+SCRIPT_PATH="$(cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P)"
+PROJECT_PATH=$(dirname "$SCRIPT_PATH")
+
+source "$PROJECT_PATH"/venv/bin/activate
+python crawl/crawl.py >> "$PROJECT_PATH"/crawl/logs/crawl.log
