@@ -1,6 +1,8 @@
 import baostock as bs
+from datetime import date
 
-CODES = ["sh.000016"]
+from dao.dao import Dao
+from utils import config
 
 
 class Init:
@@ -8,17 +10,28 @@ class Init:
         # 登录系统
         lg = bs.login()
         if lg.error_code != '0':
-            print('login respond error_code:' + lg.error_code)
-            print('login respond  error_msg:' + lg.error_msg)
+            message = "error_code: {}\nerror_msg: {}".format(
+                lg.error_code, lg.error_msg)
+            print(message)
+            raise SystemExit
+        self.dao = Dao()
+        self.codes = self.get_codes()
 
     def __del__(self):
         # 登出系统
         bs.logout()
 
+    def get_codes(self):
+        '''获取股票代号'''
+        return config.get("CODES").split(",")
+
     def crawl_data(self):
-        start_date = '2020-02-17'
-        end_date = '2020-02-17'
-        for code in CODES:
+        start_date = config.get("INIT_START_DATE")
+        if start_date is None:
+            print("初始化开始日期没有配置: .env->INIT_START_DATE is null")
+            raise SystemExit
+        end_date = date.today().strftime("%Y-%m-%d")
+        for code in self.codes:
             rs = bs.query_history_k_data_plus(
                 code,
                 "date,code,open,high,low,close,preclose,volume,amount",
@@ -34,8 +47,14 @@ class Init:
                 raise SystemExit
 
             # 存储数据
+            data = []
             while rs.next():
-                print(rs.get_row_data())
+                data.append(rs.get_row_data())
+            self.dao.multi_add_stock_data(data)
+
+            # 爬取日志记录
+            log_data = code, 0, '', end_date
+            self.dao.log_crawl(log_data)
 
     @staticmethod
     def run():
