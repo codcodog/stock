@@ -23,7 +23,7 @@ class Init:
 
     def get_codes(self):
         '''获取股票代号'''
-        return config.get("CODES").split(",")
+        return config.get("STOCK_CODES").split(",")
 
     def crawl_data(self):
         start_date = config.get("INIT_START_DATE")
