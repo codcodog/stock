@@ -47,3 +47,21 @@ class Dao:
             log.error("SQL 执行失败，err:{}, sql:{}".format(err, sql))
             self.conn.rollback()
             return False
+
+    def get_log_crawl_date(self, code):
+        '''获取爬取日志最新日期'''
+        sql = '''select `date` from `crawl_log` where `status` = 0 and `code` = "{}"
+                order by `date` DESC limit 1'''.format(code)
+        date, = self.get(sql)
+        return date.strftime("%Y-%m-%d")
+
+    def get(self, sql):
+        '''获取单条结果集'''
+        try:
+            self.cursor.execute(sql)
+            result = self.cursor.fetchone()
+            return result
+        except Exception as err:
+            log.error("SQL 执行失败，err:{}, sql:{}".format(err, sql))
+            self.conn.rollback()
+            return tuple()
