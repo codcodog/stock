@@ -65,3 +65,26 @@ class Dao:
             log.error("SQL 执行失败，err:{}, sql:{}".format(err, sql))
             self.conn.rollback()
             return tuple()
+
+    def select(self, sql):
+        '''获取全部结果集'''
+        try:
+            self.cursor.execute(sql)
+            result = self.cursor.fetchall()
+            return result
+        except Exception as err:
+            log.error("SQL 执行失败，err:{}, sql:{}".format(err, sql))
+            self.conn.rollback()
+            return []
+
+    def get_close(self, code, start_date, end_date):
+        '''获取 close 数据'''
+        fields = 'date,close'
+        return self.get_data(fields, code, start_date, end_date)
+
+    def get_data(self, fields, code, start_date, end_date):
+        '''获取股票数据'''
+        sql = '''select {fields} from `stock_day` where `code`= '{code}' and `date` between
+        '{start_date}' and '{end_date}' order by `date` asc'''.format(
+            fields=fields, code=code, start_date=start_date, end_date=end_date)
+        return self.select(sql)
