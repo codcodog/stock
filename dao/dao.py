@@ -82,6 +82,16 @@ class Dao:
         fields = 'date,close'
         return self.get_data(fields, code, start_date, end_date)
 
+    def get_low(self, code, start_date, end_date):
+        '''获取 low 数据'''
+        fields = 'date,low'
+        return self.get_data(fields, code, start_date, end_date)
+
+    def get_high(self, code, start_date, end_date):
+        '''获取 high 数据'''
+        fields = 'date,high'
+        return self.get_data(fields, code, start_date, end_date)
+
     def get_data(self, fields, code, start_date, end_date):
         '''获取股票数据'''
         sql = '''select {fields} from `stock_day` where `code`= '{code}' and `date` between

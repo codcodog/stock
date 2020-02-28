@@ -23,6 +23,32 @@ def get_close():
     return success(deal_data(data))
 
 
+@app.route('/data/low')
+def get_low():
+    '''获取某股 low 数据'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    data = dao.get_low(code, start_date, end_date)
+    return success(deal_data(data))
+
+
+@app.route('/data/high')
+def get_high():
+    '''获取某股 high 数据'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    data = dao.get_high(code, start_date, end_date)
+    return success(deal_data(data))
+
+
 def deal_data(data):
     '''处理数据'''
     prices = [row[1] for row in data]
