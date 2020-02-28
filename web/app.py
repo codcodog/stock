@@ -5,6 +5,8 @@ from flask import Flask
 from flask import request
 
 from dao.dao import Dao
+from crawl.crawl import Crawl
+
 
 app = Flask(__name__)
 dao = Dao()
@@ -71,6 +73,13 @@ def deal_data(data):
     return result
 
 
+@app.route('/crawl')
+def crawl():
+    '''手动触发爬取数据'''
+    Crawl.run()
+    return success(message='爬取完成')
+
+
 def error(message):
     '''错误信息'''
     result = {
@@ -81,7 +90,7 @@ def error(message):
     return json.dumps(result)
 
 
-def success(data, message=''):
+def success(data=[], message=''):
     '''成功信息'''
     result = {
         'code': 0,
