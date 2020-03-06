@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
-from web import app
+from web.app import app as application
 
-app.run()
+if __name__ == '__main__':
+    application.run()
