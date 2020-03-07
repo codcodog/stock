@@ -98,3 +98,16 @@ class Dao:
         '{start_date}' and '{end_date}' order by `date` asc'''.format(
             fields=fields, code=code, start_date=start_date, end_date=end_date)
         return self.select(sql)
+
+    def add_stock(self, code, code_name, start_date):
+        '''新增股票'''
+        pre_sql = '''INSERT INTO `stocks` (`code`, `code_name`, `init_date`) 
+        VALUES ('{}', '{}', '{}')'''
+        sql = pre_sql.format(code, code_name, start_date)
+        return self.execute(sql)
+
+    def get_stock_list(self):
+        '''获取股票列表'''
+        sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
+        from `stocks` order by `id` DESC'''
+        return self.select(sql)

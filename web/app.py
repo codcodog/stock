@@ -72,6 +72,45 @@ def deal_data(data):
     return result
 
 
+@app.route('/stock/add', methods=['post'])
+def add():
+    '''新增股票'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    code_name = request.json.get('name', '')
+    if code_name == '':
+        return error("code_name 不能为空")
+    start_date = request.json.get('startDate', '')
+    if start_date == '':
+        return error("start_date 不能为空")
+
+    done = dao.add_stock(code, code_name, start_date)
+    if done:
+        return success()
+    else:
+        return error("添加失败")
+
+
+@app.route('/stock/list')
+def list():
+    '''股票列表'''
+    rows = dao.get_stock_list()
+    data = []
+    for row in rows:
+        id, code, code_name, is_init, status = row
+        uint = {
+            'id': id,
+            'code': code,
+            'name': code_name,
+            'isInit': is_init,
+            'status': status
+        }
+        data.append(uint)
+
+    return success(data)
+
+
 @app.route('/crawl')
 def crawl():
     '''手动触发爬取数据'''
