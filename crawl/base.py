@@ -11,8 +11,8 @@ class Base:
         if lg.error_code != '0':
             message = "error_code: {}\nerror_msg: {}".format(
                 lg.error_code, lg.error_msg)
-            print(message)
-            raise SystemExit
+            raise Exception(message)
+
         self.dao = Dao()
         self.codes = self.get_codes()
 
@@ -34,11 +34,8 @@ class Base:
             frequency="d",
             adjustflag="3")
         if rs.error_code != '0':
-            print('query_history_k_data_plus respond error_code:' +
-                  rs.error_code)
-            print('query_history_k_data_plus respond  error_msg:' +
-                  rs.error_msg)
-            raise SystemExit
+            message = "error_code: {}, error_msg: {}".format(rs.error_code, rs.error_msg)
+            raise Exception(message)
 
         # 存储数据
         data = []

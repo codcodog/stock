@@ -151,3 +151,9 @@ class Dao:
         '''获取需要跟踪并且已经初始化的股票代码'''
         sql = '''select `code` from `stocks` where `status` = 1 and `is_init` = 1'''
         return self.select(sql)
+
+    def get_stock_log(self, code):
+        '''获取某股同步日志'''
+        sql = '''select `id`, `code`, `status`, `message`, `date`
+        from `crawl_log` where `code`="{}" order by id DESC limit 5'''.format(code)
+        return self.select(sql)

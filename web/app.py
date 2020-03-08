@@ -200,6 +200,26 @@ def incr_sync():
     crawl.inc_crawl(code)
     return success()
 
+@app.route('/stock/log')
+def log_list():
+    '''获取某股同步日志'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    rows = dao.get_stock_log(code)
+    data = []
+    for row in rows:
+        id, code, status, message, date = row
+        uint = {
+            'id': id,
+            'code': code,
+            'status': status,
+            'message': message,
+            'date': date.strftime("%Y-%m-%d"),
+        }
+        data.append(uint)
+    return success(data)
+
 def error(message):
     '''错误信息'''
     result = {
