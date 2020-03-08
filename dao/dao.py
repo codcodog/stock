@@ -111,3 +111,13 @@ class Dao:
         sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
         from `stocks` order by `id` DESC'''
         return self.select(sql)
+
+    def get_init_date(self, code):
+        '''获取某股初始化日期'''
+        sql = '''select `init_date` from `stocks` where `code`='{}' limit 1'''.format(code)
+        return self.get(sql)
+
+    def stock_inited(self, code):
+        '''更新某股初始化状态，跟踪状态'''
+        sql = '''update `stocks` set `is_init` = 1, `status` = 1 where `code`="{}"'''.format(code)
+        self.execute(sql)

@@ -6,6 +6,8 @@ from flask import request
 
 from dao.dao import Dao
 from crawl.crawl import Crawl
+from crawl.init import Init
+from utils import log
 
 app = Flask(__name__)
 dao = Dao()
@@ -116,6 +118,24 @@ def crawl():
     '''手动触发爬取数据'''
     Crawl.run()
     return success(message='爬取完成')
+
+
+@app.route('/stock/init', methods=['post'])
+def init():
+    '''初始化股票数据'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    result = dao.get_init_date(code)
+    if not result:
+        log.error("获取 {} 初始化日期失败".format(code))
+        return error("服务异常.")
+
+    start_date, = result
+    Init.run(code, start_date)
+
+    return success()
 
 
 def error(message):
