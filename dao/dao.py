@@ -157,3 +157,8 @@ class Dao:
         sql = '''select `id`, `code`, `status`, `message`, `date`
         from `crawl_log` where `code`="{}" order by id DESC limit 5'''.format(code)
         return self.select(sql)
+
+    def get_codes(self):
+        '''获取 codes 列表'''
+        sql = '''select `code`, `code_name` from `stocks` order by id ASC'''
+        return self.select(sql)

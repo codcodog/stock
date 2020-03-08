@@ -220,6 +220,20 @@ def log_list():
         data.append(uint)
     return success(data)
 
+@app.route('/stock/codes')
+def get_codes():
+    '''获取 codes 列表'''
+    result = dao.get_codes()
+    data = []
+    for row in result:
+        code, name = row
+        uint = {
+            'code': code,
+            'name': name
+        }
+        data.append(uint)
+    return success(data)
+
 def error(message):
     '''错误信息'''
     result = {
