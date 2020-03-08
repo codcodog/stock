@@ -138,6 +138,26 @@ def init():
     return success()
 
 
+@app.route('/stock/track', methods=['post'])
+def track():
+    '''跟踪该股'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    dao.track_stock(code)
+    return success()
+
+
+@app.route('/stock/untrack', methods=['post'])
+def untrack():
+    '''不再跟踪某股'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    dao.untrack_stock(code)
+    return success()
+
+
 def error(message):
     '''错误信息'''
     result = {

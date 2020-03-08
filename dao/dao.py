@@ -121,3 +121,13 @@ class Dao:
         '''更新某股初始化状态，跟踪状态'''
         sql = '''update `stocks` set `is_init` = 1, `status` = 1 where `code`="{}"'''.format(code)
         self.execute(sql)
+
+    def track_stock(self, code):
+        '''跟踪某股'''
+        sql = '''update `stocks` set `status` = 1 where `code`="{}"'''.format(code)
+        self.execute(sql)
+
+    def untrack_stock(self, code):
+        '''不再跟踪某股'''
+        sql = '''update `stocks` set `status` = 0 where `code`="{}"'''.format(code)
+        self.execute(sql)
