@@ -158,6 +158,38 @@ def untrack():
     return success()
 
 
+@app.route('/stock/info')
+def info():
+    '''获取某股信息'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    result = dao.get_stock_info(code)
+    if not result:
+        log.error("获取 {} 基本信息失败".format(code))
+        return error("服务异常.")
+    code, code_name, init_date = result
+    data = {
+        'code': code,
+        'name': code_name,
+        'startDate': init_date.strftime("%Y-%m-%d"),
+    }
+    return success(data)
+
+
+@app.route('/stock/info/update', methods=['post'])
+def update_info():
+    '''更新某股信息'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    code_name = request.json.get('name', '')
+    if code_name == '':
+        return error("name 不能为空")
+    dao.update_stock_info(code, code_name)
+    return success()
+
+
 def error(message):
     '''错误信息'''
     result = {

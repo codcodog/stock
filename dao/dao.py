@@ -114,20 +114,35 @@ class Dao:
 
     def get_init_date(self, code):
         '''获取某股初始化日期'''
-        sql = '''select `init_date` from `stocks` where `code`='{}' limit 1'''.format(code)
+        sql = '''select `init_date` from `stocks` where `code`='{}' limit 1'''.format(
+            code)
         return self.get(sql)
 
     def stock_inited(self, code):
         '''更新某股初始化状态，跟踪状态'''
-        sql = '''update `stocks` set `is_init` = 1, `status` = 1 where `code`="{}"'''.format(code)
+        sql = '''update `stocks` set `is_init` = 1, `status` = 1 where `code`="{}"'''.format(
+            code)
         self.execute(sql)
 
     def track_stock(self, code):
         '''跟踪某股'''
-        sql = '''update `stocks` set `status` = 1 where `code`="{}"'''.format(code)
+        sql = '''update `stocks` set `status` = 1 where `code`="{}"'''.format(
+            code)
         self.execute(sql)
 
     def untrack_stock(self, code):
         '''不再跟踪某股'''
-        sql = '''update `stocks` set `status` = 0 where `code`="{}"'''.format(code)
+        sql = '''update `stocks` set `status` = 0 where `code`="{}"'''.format(
+            code)
+        self.execute(sql)
+
+    def get_stock_info(self, code):
+        '''获取某股基本信息'''
+        sql = '''select `code`, `code_name`, `init_date` from `stocks`
+        where `code`="{}" limit 1'''.format(code)
+        return self.get(sql)
+
+    def update_stock_info(self, code, name):
+        sql = '''update `stocks` set `code_name` = "{}" where `code`="{}"'''.format(
+            name, code)
         self.execute(sql)
