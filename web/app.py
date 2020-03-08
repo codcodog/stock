@@ -190,6 +190,16 @@ def update_info():
     return success()
 
 
+@app.route('/stock/sync/incr', methods=['post'])
+def incr_sync():
+    '''增量同步'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    crawl = Crawl()
+    crawl.inc_crawl(code)
+    return success()
+
 def error(message):
     '''错误信息'''
     result = {

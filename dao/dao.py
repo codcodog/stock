@@ -146,3 +146,8 @@ class Dao:
         sql = '''update `stocks` set `code_name` = "{}" where `code`="{}"'''.format(
             name, code)
         self.execute(sql)
+
+    def get_stock_codes(self):
+        '''获取需要跟踪并且已经初始化的股票代码'''
+        sql = '''select `code` from `stocks` where `status` = 1 and `is_init` = 1'''
+        return self.select(sql)
