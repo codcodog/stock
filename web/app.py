@@ -8,6 +8,7 @@ from dao.dao import Dao
 from crawl.crawl import Crawl
 from crawl.init import Init
 from utils import log
+from utils import config
 
 app = Flask(__name__)
 dao = Dao()
@@ -200,6 +201,7 @@ def incr_sync():
     crawl.inc_crawl(code)
     return success()
 
+
 @app.route('/stock/log')
 def log_list():
     '''获取某股同步日志'''
@@ -220,6 +222,7 @@ def log_list():
         data.append(uint)
     return success(data)
 
+
 @app.route('/stock/codes')
 def get_codes():
     '''获取 codes 列表'''
@@ -227,12 +230,45 @@ def get_codes():
     data = []
     for row in result:
         code, name = row
-        uint = {
-            'code': code,
-            'name': name
-        }
+        uint = {'code': code, 'name': name}
         data.append(uint)
     return success(data)
+
+
+@app.route('/user/login', methods=['post'])
+def login():
+    '''登录'''
+    username = request.json.get('username', '')
+    password = request.json.get('password', '')
+
+    if username != config.get('USERNAME'):
+        return error("帐号不存在.")
+    if password != config.get('PASSWORD'):
+        return error("密码错误.")
+    data = {
+        'token': config.get('TOKEN'),
+    }
+    return success(data)
+
+
+@app.route('/user/logout', methods=['post'])
+def logout():
+    '''退出'''
+    return success()
+
+
+@app.route('/user/info')
+def user_info():
+    '''用户信息'''
+    token = request.args.get('token', '')
+    if token != config.get('TOKEN'):
+        return error("用户认证失败.")
+    data = {
+        'name': config.get("USERNAME"),
+        'avatar': config.get("AVATAR"),
+    }
+    return success(data)
+
 
 def error(message):
     '''错误信息'''

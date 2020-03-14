@@ -14,15 +14,10 @@ class Base:
             raise Exception(message)
 
         self.dao = Dao()
-        self.codes = self.get_codes()
 
     def __del__(self):
         # 登出系统
         bs.logout()
-
-    def get_codes(self):
-        '''获取股票代号'''
-        return config.get("STOCK_CODES").split(",")
 
     def get_stock_data(self, code, start_date, end_date):
         '''获取每天股票数据'''
@@ -34,7 +29,8 @@ class Base:
             frequency="d",
             adjustflag="3")
         if rs.error_code != '0':
-            message = "error_code: {}, error_msg: {}".format(rs.error_code, rs.error_msg)
+            message = "error_code: {}, error_msg: {}".format(
+                rs.error_code, rs.error_msg)
             raise Exception(message)
 
         # 存储数据
