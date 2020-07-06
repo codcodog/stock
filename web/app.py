@@ -95,6 +95,19 @@ def add():
         return error("添加失败")
 
 
+@app.route('/stock/delete', methods=['post'])
+def delete():
+    '''删除某股'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    done = dao.delete_code(code)
+    if done:
+        return success()
+    else:
+        return error("删除失败")
+
+
 @app.route('/stock/list')
 def list():
     '''股票列表'''

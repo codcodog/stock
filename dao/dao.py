@@ -163,3 +163,22 @@ class Dao:
         '''获取 codes 列表'''
         sql = '''select `code`, `code_name` from `stocks` order by id ASC'''
         return self.select(sql)
+
+    def delete_code(self, code):
+        '''删除某股
+        删除 stocks, stock_day, crawl_log 记录
+        '''
+        sql1 = '''delete from `stocks` where `code`="{}"'''.format(code)
+        sql2 = '''delete from `stock_day` where `code`="{}"'''.format(code)
+        sql3 = '''delete from `crawl_log` where `code`="{}"'''.format(code)
+
+        try:
+            self.cursor.execute(sql1)
+            self.cursor.execute(sql2)
+            self.cursor.execute(sql3)
+            self.conn.commit()
+            return True
+        except Exception as err:
+            log.error("SQL 执行失败，err:{}, sql1:{}, sql2:{}, sql3:{}".format(err, sql1, sql2, sql3))
+            self.conn.rollback()
+            return False
