@@ -16,6 +16,23 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `bias_22`
+--
+
+DROP TABLE IF EXISTS `bias_22`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bias_22` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `code` char(12) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `bias` decimal(12,2) NOT NULL COMMENT '22 日 bias',
+  PRIMARY KEY (`id`),
+  KEY `code` (`code`,`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=4368 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `crawl_log`
 --
 
@@ -29,8 +46,9 @@ CREATE TABLE `crawl_log` (
   `message` varchar(255) NOT NULL DEFAULT '',
   `date` date NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -50,11 +68,14 @@ CREATE TABLE `stock_day` (
   `preclose` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '昨日收盘价',
   `volume` bigint(20) NOT NULL DEFAULT 0 COMMENT '成交数量（单位：股）',
   `amount` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '成交金额',
+  `turn` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '换手率',
+  `pe_ttm` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '滚动市盈率',
   `date` date NOT NULL COMMENT '日期',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  PRIMARY KEY (`id`),
+  KEY `index2` (`code`,`date`)
+) ENGINE=InnoDB AUTO_INCREMENT=4089 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +95,7 @@ CREATE TABLE `stocks` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `status` tinyint(4) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -86,4 +107,4 @@ CREATE TABLE `stocks` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-03-10 15:56:39
+-- Dump completed on 2020-12-26 12:48:33

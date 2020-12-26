@@ -9,6 +9,7 @@ from crawl.crawl import Crawl
 from crawl.init import Init
 from utils import log
 from utils import config
+from utils import util
 
 app = Flask(__name__)
 dao = Dao()
@@ -53,11 +54,55 @@ def get_high():
     return success(deal_data(data))
 
 
+@app.route('/data/bias')
+def get_bias():
+    '''获取某股22日bias'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    data = dao.get_bias(code, start_date, end_date)
+    return success(deal_bias_data(data))
+
+
+def deal_bias_data(data):
+    '''处理bias数据'''
+    biases = [row[1] for row in data]
+    data_num = len(biases)
+    if data_num < 10: # 确保数据有两周
+        buy_bias = 0
+        sell_bias = 0
+    index = round(data_num*0.1)
+
+    print("=====", data_num, index)
+    biases.sort()
+    buy_bias = float(round(biases[index], 2))
+    sell_bias = float(round(biases[-(index+1)], 2))
+
+    deal_data = []
+    for row in data:
+        date, bias = row
+        uint = {
+            'date': date.strftime("%Y-%m-%d"),
+            'bias': float(round(bias, 2)),
+        }
+        deal_data.append(uint)
+
+    result = {
+        'buy_bias': buy_bias,
+        'sell_bias': sell_bias,
+        'biases': deal_data,
+    }
+    return result
+
+
 def deal_data(data):
     '''处理数据'''
     prices = [row[1] for row in data]
-    ave = float(round(average(prices), 2))
-    mid = float(round(median(prices), 2))
+    ave = float(round(util.average(prices), 2))
+    mid = float(round(util.median(prices), 2))
     deal_data = []
     for row in data:
         date, price = row
@@ -301,23 +346,3 @@ def success(data=[], message=''):
         'data': data,
     }
     return json.dumps(result)
-
-
-def average(data):
-    '''求取平均数'''
-    if len(data) == 0:
-        return 0
-
-    data.sort()
-    if len(data) > 2:
-        filter_data = data[1:-1]
-    else:
-        filter_data = data
-    return np.mean(filter_data)
-
-
-def median(data):
-    '''求取中数'''
-    if len(data) == 0:
-        return 0
-    return np.median(data)

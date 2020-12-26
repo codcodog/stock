@@ -99,6 +99,13 @@ class Dao:
             fields=fields, code=code, start_date=start_date, end_date=end_date)
         return self.select(sql)
 
+    def get_bias(self, code, start_date, end_date):
+        '''获取22日bias'''
+        sql = '''select `date`, `bias` from `bias_22` where `code` = '{code}' and `date` between
+        '{start_date}' and '{end_date}' order by `date` asc'''.format(
+            code=code, start_date=start_date, end_date=end_date)
+        return self.select(sql)
+
     def add_stock(self, code, code_name, start_date):
         '''新增股票'''
         pre_sql = '''INSERT INTO `stocks` (`code`, `code_name`, `init_date`) 
@@ -166,19 +173,35 @@ class Dao:
 
     def delete_code(self, code):
         '''删除某股
-        删除 stocks, stock_day, crawl_log 记录
+        删除 stocks, stock_day, crawl_log, bias_22
         '''
         sql1 = '''delete from `stocks` where `code`="{}"'''.format(code)
         sql2 = '''delete from `stock_day` where `code`="{}"'''.format(code)
         sql3 = '''delete from `crawl_log` where `code`="{}"'''.format(code)
+        sql4 = '''delete from `bias_22` where `code`="{}"'''.format(code)
 
         try:
             self.cursor.execute(sql1)
             self.cursor.execute(sql2)
             self.cursor.execute(sql3)
+            self.cursor.execute(sql4)
             self.conn.commit()
             return True
         except Exception as err:
-            log.error("SQL 执行失败，err:{}, sql1:{}, sql2:{}, sql3:{}".format(err, sql1, sql2, sql3))
+            log.error("SQL 执行失败，err:{}, sql1:{}, sql2:{}, sql3:{}".format(
+                err, sql1, sql2, sql3))
             self.conn.rollback()
             return False
+
+    def get_22_stock_data(self, code, date):
+        '''获取某股22日数据'''
+        sql = "select close from `stock_day` where `code`='{}' and date < '{}' order by date DESC limit 22".format(
+            code, date)
+        return self.select(sql)
+
+    def add_22_bias(self, *data):
+        '''新增22日bias数据'''
+        pre_sql = '''INSERT INTO `bias_22` (`code`, `date`, `bias`) 
+        VALUES ('{}', '{}', {})'''
+        sql = pre_sql.format(*data)
+        return self.execute(sql)

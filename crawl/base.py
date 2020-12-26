@@ -1,7 +1,10 @@
 import baostock as bs
 
+from decimal import *
+
 from utils import config
 from dao.dao import Dao
+from utils import util
 
 
 class Base:
@@ -23,7 +26,7 @@ class Base:
         '''获取每天股票数据'''
         rs = bs.query_history_k_data_plus(
             code,
-            "date,code,open,high,low,close,preclose,volume,amount",
+            "date,code,open,high,low,close,preclose,volume,amount,peTTM",
             start_date=start_date,
             end_date=end_date,
             frequency="d",
@@ -38,3 +41,16 @@ class Base:
         while rs.next():
             data.append(rs.get_row_data())
         return data
+
+    def cal_22bias(self, data):
+        '''计算22日bias'''
+        for stock_data in data:
+            date, code, _, _, _, close, *not_use = tuple(stock_data)
+            close = Decimal(close)
+            data = self.dao.get_22_stock_data(code, date)
+            if len(data) < 22:
+                continue
+            prices = [row[0] for row in data]
+            ave_close = util.average(prices)
+            bias = round((close - ave_close) / ave_close * 100, 2)
+            self.dao.add_22_bias(code, date, bias)
