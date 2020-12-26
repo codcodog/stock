@@ -76,7 +76,6 @@ def deal_bias_data(data):
         sell_bias = 0
     index = round(data_num*0.1)
 
-    print("=====", data_num, index)
     biases.sort()
     buy_bias = float(round(biases[index], 2))
     sell_bias = float(round(biases[-(index+1)], 2))
