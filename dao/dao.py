@@ -181,12 +181,14 @@ class Dao:
         sql2 = '''delete from `stock_day` where `code`="{}"'''.format(code)
         sql3 = '''delete from `crawl_log` where `code`="{}"'''.format(code)
         sql4 = '''delete from `bias_22` where `code`="{}"'''.format(code)
+        sql5 = '''delete from `price_monitor` where `code`="{}"'''.format(code)
 
         try:
             self.cursor.execute(sql1)
             self.cursor.execute(sql2)
             self.cursor.execute(sql3)
             self.cursor.execute(sql4)
+            self.cursor.execute(sql5)
             self.conn.commit()
             return True
         except Exception as err:
@@ -207,3 +209,23 @@ class Dao:
         VALUES ('{}', '{}', {})'''
         sql = pre_sql.format(*data)
         return self.execute(sql)
+
+    def save_price_monitor(self, code, ave_price, buy_bias, sell_bias, status):
+        '''新增/更新 价格监控'''
+        data = self.get_price_monitor(code)
+        if len(data) == 0:    # 新增
+            sql = '''INSERT INTO `price_monitor` (`code`, `ave`, `buy_bias`, `sell_bias`,
+            `status`) VALUES ('{code}', {ave}, {buy_bias}, {sell_bias}, {status})'''.format(
+                code=code, ave=ave_price, buy_bias=buy_bias, sell_bias=sell_bias, status=status)
+            return self.execute(sql)
+        else:    # 更新
+            sql = '''update `price_monitor` set `ave`={}, `buy_bias`={}, `sell_bias`={},
+            `status`={} where `code`="{}"'''.format(ave_price, buy_bias,
+                                                  sell_bias, status, code)
+            return self.execute(sql)
+
+    def get_price_monitor(self, code):
+        '''获取价格监控'''
+        sql = '''select `code`, `ave`, `buy_bias`, `sell_bias`, `status`
+        from `price_monitor` where `code`='{}' limit 1'''.format(code)
+        return self.select(sql)
