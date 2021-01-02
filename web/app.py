@@ -71,14 +71,14 @@ def deal_bias_data(data):
     '''处理bias数据'''
     biases = [row[1] for row in data]
     data_num = len(biases)
-    if data_num < 10: # 确保数据有两周
+    if data_num < 10:    # 确保数据有两周
         buy_bias = 0
         sell_bias = 0
-    index = round(data_num*0.1)
+    index = round(data_num * 0.1)
 
     biases.sort()
     buy_bias = float(round(biases[index], 2))
-    sell_bias = float(round(biases[-(index+1)], 2))
+    sell_bias = float(round(biases[-(index + 1)], 2))
 
     deal_data = []
     for row in data:
@@ -169,6 +169,64 @@ def list():
         data.append(uint)
 
     return success(data)
+
+
+@app.route('/price/monitor/save', methods=['post'])
+def price_monitor_save():
+    '''保存价格监控'''
+    errs = validate_price_monitor()
+    if errs != '':
+        return errs
+
+    code = request.json.get('code', '')
+    status = request.json.get('status')
+    ave_price = request.json.get('ave_price', 0)
+    buy_bias = request.json.get('buy_bias', 0)
+    sell_bias = request.json.get('sell_bias', 0)
+    done = dao.save_price_monitor(code, ave_price, buy_bias, sell_bias, status)
+    if done:
+        return success()
+    return error("保存失败")
+
+@app.route('/price/monitor')
+def price_monitor():
+    '''获取价格监控'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    rows = dao.get_price_monitor(code)
+    if len(rows) > 0:
+        row = rows[0]
+        _, ave, buy_bias, sell_bias, status = row
+        data = {
+            'status': status,
+            'ave_price': float(round(ave, 2)),
+            'buy_bias': float(round(buy_bias, 2)),
+            'sell_bias': float(round(sell_bias, 2)),
+        }
+        return success(data)
+    else:
+        return success({})
+
+
+def validate_price_monitor():
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    status = request.json.get('status')
+    if status != 0 and status != 1:
+        return error("非法 status 值")
+    ave_price = request.json.get('ave_price', 0)
+    if ave_price == 0:
+        return error("ave_price 不能为空")
+    buy_bias = request.json.get('buy_bias', 0)
+    if buy_bias == 0:
+        return error("buy_bias 不能为空")
+    sell_bias = request.json.get('sell_bias', 0)
+    if sell_bias == 0:
+        return error("sell_bias 不能为空")
+    return ''
 
 
 @app.route('/crawl')
