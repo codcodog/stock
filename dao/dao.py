@@ -9,10 +9,12 @@ class Dao:
         self.conn = pymysql.connect(config.get("DB_HOST"),
                                     config.get("DB_USER"),
                                     config.get("DB_PASSWORD"),
-                                    config.get("DB_NAME"))
+                                    config.get("DB_NAME"),
+                                    autocommit=True)
         self.cursor = self.conn.cursor()
 
     def __del__(self):
+        self.cursor.close()
         self.conn.close()
 
     def multi_add_stock_data(self, data):
