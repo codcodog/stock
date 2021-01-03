@@ -1,4 +1,5 @@
 import baostock as bs
+import datetime
 from datetime import date
 
 from crawl.base import Base
@@ -9,7 +10,11 @@ from utils import log
 class Crawl(Base):
     def inc_crawl(self, code):
         '''增量爬取'''
-        start_date = self.dao.get_log_crawl_date(code)
+        start = self.dao.get_log_crawl_date(code)
+        # +1 day，防止已爬取的数据重复
+        start = start + datetime.timedelta(days=1)
+
+        start_date = start.strftime("%Y-%m-%d")
         end_date = date.today().strftime("%Y-%m-%d")
 
         try:

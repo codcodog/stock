@@ -55,7 +55,7 @@ class Dao:
         sql = '''select `date` from `crawl_log` where `status` = 0 and `code` = "{}"
                 order by `date` DESC limit 1'''.format(code)
         date, = self.get(sql)
-        return date.strftime("%Y-%m-%d")
+        return date
 
     def get(self, sql):
         '''获取单条结果集'''
