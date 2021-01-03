@@ -9,6 +9,7 @@
 设置配置信息
 ```
 $ cp .env.example .env
+$ cp www.ini.example www.ini
 ```
 > 用户登录目前是直接设置在配置文件的
 

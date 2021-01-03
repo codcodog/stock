@@ -216,16 +216,26 @@ class Dao:
         if len(data) == 0:    # 新增
             sql = '''INSERT INTO `price_monitor` (`code`, `ave`, `buy_bias`, `sell_bias`,
             `status`) VALUES ('{code}', {ave}, {buy_bias}, {sell_bias}, {status})'''.format(
-                code=code, ave=ave_price, buy_bias=buy_bias, sell_bias=sell_bias, status=status)
+                code=code,
+                ave=ave_price,
+                buy_bias=buy_bias,
+                sell_bias=sell_bias,
+                status=status)
             return self.execute(sql)
         else:    # 更新
             sql = '''update `price_monitor` set `ave`={}, `buy_bias`={}, `sell_bias`={},
             `status`={} where `code`="{}"'''.format(ave_price, buy_bias,
-                                                  sell_bias, status, code)
+                                                    sell_bias, status, code)
             return self.execute(sql)
 
     def get_price_monitor(self, code):
         '''获取价格监控'''
         sql = '''select `code`, `ave`, `buy_bias`, `sell_bias`, `status`
         from `price_monitor` where `code`='{}' limit 1'''.format(code)
+        return self.select(sql)
+
+    def get_price_monitor_list(self):
+        '''获取监控列表'''
+        sql = '''select `code`, `ave`, `buy_bias`, `sell_bias` from
+        `price_monitor` where `status`=1'''
         return self.select(sql)

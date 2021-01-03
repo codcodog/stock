@@ -188,6 +188,7 @@ def price_monitor_save():
         return success()
     return error("保存失败")
 
+
 @app.route('/price/monitor')
 def price_monitor():
     '''获取价格监控'''
