@@ -4,21 +4,20 @@ import requests
 from utils import config
 from utils import log
 
+DING_ROBOT_URI_TPL = "https://oapi.dingtalk.com/robot/send?access_token={}"
+
 
 class Ding:
     def __init__(self):
-        self.token = config.get("DING_ROBOT_TOKEN")
-        self.url = "https://oapi.dingtalk.com/robot/send?access_token={}".format(
-            self.token)
-        self.message_template = '''[ALERT] {}'''
+        token = config.get("DING_ROBOT_TOKEN")
+        self.url = DING_ROBOT_URI_TPL.format(token)
 
     def send(self, message):
         '''发送通知'''
-        content = self.message_template.format(message)
         params = {
             "msgtype": "text",
             "text": {
-                "content": content,
+                "content": message,
             },
         }
         resp = requests.post(self.url, json=params)

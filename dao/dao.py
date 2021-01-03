@@ -233,3 +233,9 @@ class Dao:
         sql = '''select `code`, `ave`, `buy_bias`, `sell_bias`, `status`
         from `price_monitor` where `code`='{}' limit 1'''.format(code)
         return self.select(sql)
+
+    def get_price_monitor_list(self):
+        '''获取监控列表'''
+        sql = '''select `code`, `ave`, `buy_bias`, `sell_bias` from
+        `price_monitor` where `status`=1'''
+        return self.select(sql)
