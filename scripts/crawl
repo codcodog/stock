@@ -7,4 +7,4 @@ PROJECT_PATH=$(dirname "$SCRIPT_PATH")
 
 cd "$PROJECT_PATH"
 source venv/bin/activate
-python crawl.py >> logs/crawl.log
+python3 crawl.py >> logs/crawl.log
