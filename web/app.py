@@ -14,6 +14,12 @@ from utils import util
 app = Flask(__name__)
 dao = Dao()
 
+@app.before_request
+def ping_mysql():
+    '''确保 mysql 连接没有丢失'''
+    if not dao.conn.open:
+        dao.conn.ping(reconnect=True)
+
 
 @app.route('/data/close')
 def get_close():
