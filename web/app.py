@@ -14,6 +14,7 @@ from utils import util
 app = Flask(__name__)
 dao = Dao()
 
+
 @app.before_request
 def ping_mysql():
     '''确保 mysql 连接没有丢失'''

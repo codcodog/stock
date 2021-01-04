@@ -24,6 +24,12 @@ EXPIRE_TIME = 60 * 60 * 8    # 缓存8小时
 
 
 def start():
+    now = datetime.now()
+    start = datetime.strptime(
+        str(datetime.now().date()) + '9:30', '%Y-%m-%d%H:%M')
+    if now < start:    # 9:30 前不执行，uri 爬取不了数据
+        return
+
     list = get_monitor_list()
     if not list:
         return
@@ -31,7 +37,7 @@ def start():
     for row in list:
         code, ave, buy_bias, sell_bias = row
         name, price = get_price(code)
-        if price == 0 or ave == 0:    # 9:00~9:30 获取不到价格或者其他原因
+        if price == 0 or ave == 0:    # 获取不到价格或者其他原因
             continue
 
         bias = (price - ave) / ave * 100
