@@ -1,13 +1,13 @@
--- MariaDB dump 10.17  Distrib 10.4.12-MariaDB, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.22, for Linux (x86_64)
 --
--- Host: 172.17.0.2    Database: stock
+-- Host: localhost    Database: invest
 -- ------------------------------------------------------
--- Server version	10.4.12-MariaDB-1:10.4.12+maria~bionic
+-- Server version	8.0.22
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 /*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
@@ -21,15 +21,15 @@
 
 DROP TABLE IF EXISTS `bias_22`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `bias_22` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `code` char(12) DEFAULT NULL,
-  `date` date DEFAULT NULL,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `code` char(12) NOT NULL,
+  `date` date NOT NULL,
   `bias` decimal(12,2) NOT NULL COMMENT '22 日 bias',
   PRIMARY KEY (`id`),
   KEY `code` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=4368 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5903 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -38,17 +38,37 @@ CREATE TABLE `bias_22` (
 
 DROP TABLE IF EXISTS `crawl_log`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `crawl_log` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL DEFAULT '' COMMENT '股票代码',
-  `status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '爬取状态，0：成功，1：失败.',
+  `status` tinyint NOT NULL DEFAULT '0' COMMENT '爬取状态，0：成功，1：失败.',
   `message` varchar(255) NOT NULL DEFAULT '',
   `date` date NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `price_monitor`
+--
+
+DROP TABLE IF EXISTS `price_monitor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `price_monitor` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `code` char(12) NOT NULL,
+  `ave` decimal(12,2) NOT NULL COMMENT '均价，一般为 22 日平均价格',
+  `buy_bias` decimal(12,2) NOT NULL,
+  `sell_bias` decimal(12,2) NOT NULL,
+  `status` tinyint unsigned NOT NULL COMMENT '是否开启，0：关闭，1：开启',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,25 +77,25 @@ CREATE TABLE `crawl_log` (
 
 DROP TABLE IF EXISTS `stock_day`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `stock_day` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL DEFAULT '' COMMENT '股票代码',
-  `open` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '今天开盘价',
-  `high` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '最高价',
-  `low` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '最低价',
-  `close` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '今天收盘价',
-  `preclose` decimal(12,4) NOT NULL DEFAULT 0.0000 COMMENT '昨日收盘价',
-  `volume` bigint(20) NOT NULL DEFAULT 0 COMMENT '成交数量（单位：股）',
-  `amount` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '成交金额',
-  `turn` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '换手率',
-  `pe_ttm` decimal(16,4) NOT NULL DEFAULT 0.0000 COMMENT '滚动市盈率',
+  `open` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '今天开盘价',
+  `high` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '最高价',
+  `low` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '最低价',
+  `close` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '今天收盘价',
+  `preclose` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '昨日收盘价',
+  `volume` bigint NOT NULL DEFAULT '0' COMMENT '成交数量（单位：股）',
+  `amount` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '成交金额',
+  `turn` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '换手率',
+  `pe_ttm` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '滚动市盈率',
   `date` date NOT NULL COMMENT '日期',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '创建时间',
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新时间',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `index2` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=4089 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6057 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -84,18 +104,18 @@ CREATE TABLE `stock_day` (
 
 DROP TABLE IF EXISTS `stocks`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
+/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `stocks` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL DEFAULT '' COMMENT '股票代码',
   `code_name` varchar(45) NOT NULL DEFAULT '' COMMENT '股票昵称',
-  `is_init` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否已初始化，0：否，1：已初始化',
+  `is_init` tinyint NOT NULL DEFAULT '0' COMMENT '是否已初始化，0：否，1：已初始化',
   `init_date` date NOT NULL COMMENT '初始化历史数据，开始日期',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `status` tinyint(4) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `status` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -107,4 +127,4 @@ CREATE TABLE `stocks` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-12-26 12:48:33
+-- Dump completed on 2021-01-04 18:33:28
