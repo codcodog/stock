@@ -1,4 +1,5 @@
 import json
+import math
 
 import numpy as np
 from flask import Flask
@@ -31,7 +32,7 @@ def get_close():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     data = dao.get_close(code, start_date, end_date)
-    return success(deal_data(data))
+    return success(deal_data(data, 'close'))
 
 
 @app.route('/data/low')
@@ -44,7 +45,7 @@ def get_low():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     data = dao.get_low(code, start_date, end_date)
-    return success(deal_data(data))
+    return success(deal_data(data, 'low'))
 
 
 @app.route('/data/high')
@@ -57,7 +58,7 @@ def get_high():
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
     data = dao.get_high(code, start_date, end_date)
-    return success(deal_data(data))
+    return success(deal_data(data, 'high'))
 
 
 @app.route('/data/bias')
@@ -103,11 +104,22 @@ def deal_bias_data(data):
     return result
 
 
-def deal_data(data):
+def deal_data(data, data_type):
     '''处理数据'''
     prices = [row[1] for row in data]
     ave = float(round(util.average(prices), 2))
     mid = float(round(util.median(prices), 2))
+
+    prices.sort()
+    index = math.floor(len(prices)*0.2)
+    if data_type == 'low':
+        price28 = prices[index]
+    elif data_type == 'high':
+        price28 = prices[-(index+1)]
+    else:
+        price28 = 0
+    price28 = float(round(price28, 2))
+
     deal_data = []
     for row in data:
         date, price = row
@@ -120,6 +132,7 @@ def deal_data(data):
     result = {
         'ave': ave,
         'mid': mid,
+        'price28': price28,
         'prices': deal_data,
     }
     return result
