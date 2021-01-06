@@ -77,6 +77,8 @@ def get_bias():
 def deal_bias_data(data):
     '''处理bias数据'''
     biases = [row[1] for row in data]
+    levels = get_bias_level(biases)
+
     data_num = len(biases)
     if data_num < 10:    # 确保数据有两周
         buy_bias = 0
@@ -100,9 +102,46 @@ def deal_bias_data(data):
         'buy_bias': buy_bias,
         'sell_bias': sell_bias,
         'biases': deal_data,
+        'levels': levels,
     }
     return result
 
+def get_bias_level(biases):
+    '''获取 bias 各个 level 分布
+    小于-10, -5~-10, -3~-5, -1~-3
+    -1~1, 1~3, 3~5, 5~10, 大于10
+    '''
+    levels = {
+        '-10': 0,
+        '-10~-5': 0,
+        '-3~-5': 0,
+        '-1~-3': 0,
+        '-1~1': 0,
+        '1~3': 0,
+        '3~5': 0,
+        '5~10': 0,
+        '10': 0,
+    }
+    for bias in biases:
+        if bias < -10:
+            levels['-10'] += 1
+        elif -10 <= bias < -5:
+            levels['-10~-5'] += 1
+        elif -5 <= bias < -3:
+            levels['-3~-5'] += 1
+        elif -3 <= bias < -1:
+            levels['-1~-3'] += 1
+        elif -1 <= bias <= 1:
+            levels['-1~1'] += 1
+        elif 1 < bias < 3:
+            levels['1~3'] += 1
+        elif 3 <= bias < 5:
+            levels['3~5'] += 1
+        elif 5 <= bias < 10:
+            levels['5~10'] += 1
+        else:
+            levels['10'] += 1
+    return levels
 
 def deal_data(data, data_type):
     '''处理数据'''
