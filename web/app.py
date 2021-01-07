@@ -238,10 +238,10 @@ def price_monitor_save():
 
     code = request.json.get('code', '')
     status = request.json.get('status')
-    ave_price = request.json.get('ave_price', 0)
-    buy_bias = request.json.get('buy_bias', 0)
-    sell_bias = request.json.get('sell_bias', 0)
-    done = dao.save_price_monitor(code, ave_price, buy_bias, sell_bias, status)
+    message = request.json.get('message', '')
+    buy_bias = request.json.get('buy_price', 0)
+    sell_bias = request.json.get('sell_price', 0)
+    done = dao.save_price_monitor(code, buy_bias, sell_bias, message, status)
     if done:
         return success()
     return error("保存失败")
@@ -257,12 +257,12 @@ def price_monitor():
     rows = dao.get_price_monitor(code)
     if len(rows) > 0:
         row = rows[0]
-        _, ave, buy_bias, sell_bias, status = row
+        _, buy_price, sell_price, message, status = row
         data = {
             'status': status,
-            'ave_price': float(round(ave, 2)),
-            'buy_bias': float(round(buy_bias, 2)),
-            'sell_bias': float(round(sell_bias, 2)),
+            'buy_price': float(round(buy_price, 2)),
+            'sell_price': float(round(sell_price, 2)),
+            'message': message,
         }
         return success(data)
     else:
@@ -276,15 +276,12 @@ def validate_price_monitor():
     status = request.json.get('status')
     if status != 0 and status != 1:
         return error("非法 status 值")
-    ave_price = request.json.get('ave_price', 0)
-    if ave_price == 0:
-        return error("ave_price 不能为空")
-    buy_bias = request.json.get('buy_bias', 0)
-    if buy_bias == 0:
-        return error("buy_bias 不能为空")
-    sell_bias = request.json.get('sell_bias', 0)
-    if sell_bias == 0:
-        return error("sell_bias 不能为空")
+    buy_price = request.json.get('buy_price', 0)
+    if buy_price == 0:
+        return error("buy_price 不能为空")
+    sell_price = request.json.get('sell_price', 0)
+    if sell_price == 0:
+        return error("sell_price 不能为空")
     return ''
 
 

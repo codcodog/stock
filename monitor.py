@@ -35,16 +35,14 @@ def start():
         return
 
     for row in list:
-        code, ave, buy_bias, sell_bias = row
+        code, buy_price, sell_price = row
         name, price = get_price(code)
-        if price == 0 or ave == 0:    # 获取不到价格或者其他原因
+        if price == 0:    # 获取不到价格或者其他原因
             continue
 
-        bias = (price - ave) / ave * 100
-        bias = round(bias, 2)
-        if bias < buy_bias:
+        if price <= buy_price:
             notify(code, name, "BUY")
-        if bias > sell_bias:
+        if price >= sell_price:
             notify(code, name, "SELL")
 
 
