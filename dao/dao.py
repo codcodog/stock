@@ -210,32 +210,32 @@ class Dao:
         sql = pre_sql.format(*data)
         return self.execute(sql)
 
-    def save_price_monitor(self, code, ave_price, buy_bias, sell_bias, status):
+    def save_price_monitor(self, code, buy_price, sell_price, message, status):
         '''新增/更新 价格监控'''
         data = self.get_price_monitor(code)
         if len(data) == 0:    # 新增
-            sql = '''INSERT INTO `price_monitor` (`code`, `ave`, `buy_bias`, `sell_bias`,
-            `status`) VALUES ('{code}', {ave}, {buy_bias}, {sell_bias}, {status})'''.format(
+            sql = '''INSERT INTO `price_monitor` (`code`, `buy_price`, `sell_price`,
+           `message`, `status`) VALUES ('{code}', {buy_price}, {sell_price}, '{message}', {status})'''.format(
                 code=code,
-                ave=ave_price,
-                buy_bias=buy_bias,
-                sell_bias=sell_bias,
+                buy_price=buy_price,
+                sell_price=sell_price,
+                message=message,
                 status=status)
             return self.execute(sql)
         else:    # 更新
-            sql = '''update `price_monitor` set `ave`={}, `buy_bias`={}, `sell_bias`={},
-            `status`={} where `code`="{}"'''.format(ave_price, buy_bias,
-                                                    sell_bias, status, code)
+            sql = '''update `price_monitor` set `message`='{}', `buy_price`={}, `sell_price`={},
+            `status`={} where `code`="{}"'''.format(message, buy_price,
+                                                    sell_price, status, code)
             return self.execute(sql)
 
     def get_price_monitor(self, code):
         '''获取价格监控'''
-        sql = '''select `code`, `ave`, `buy_bias`, `sell_bias`, `status`
+        sql = '''select `code`, `buy_price`, `sell_price`, `message`, `status`
         from `price_monitor` where `code`='{}' limit 1'''.format(code)
         return self.select(sql)
 
     def get_price_monitor_list(self):
         '''获取监控列表'''
-        sql = '''select `code`, `ave`, `buy_bias`, `sell_bias` from
+        sql = '''select `code`, `buy_price`, `sell_price` from
         `price_monitor` where `status`=1'''
         return self.select(sql)
