@@ -106,6 +106,7 @@ def deal_bias_data(data):
     }
     return result
 
+
 def get_bias_level(biases):
     '''获取 bias 各个 level 分布
     小于-10, -5~-10, -3~-5, -1~-3
@@ -143,6 +144,7 @@ def get_bias_level(biases):
             levels['10'] += 1
     return levels
 
+
 def deal_data(data, data_type):
     '''处理数据'''
     prices = [row[1] for row in data]
@@ -150,11 +152,11 @@ def deal_data(data, data_type):
     mid = float(round(util.median(prices), 2))
 
     prices.sort()
-    index = math.floor(len(prices)*0.2)
+    index = math.floor(len(prices) * 0.2)
     if data_type == 'low':
         price28 = prices[index]
     elif data_type == 'high':
-        price28 = prices[-(index+1)]
+        price28 = prices[-(index + 1)]
     else:
         price28 = 0
     price28 = float(round(price28, 2))
@@ -215,7 +217,8 @@ def list():
     '''股票列表'''
     page = request.args.get('page', 1)
     size = request.args.get('size', 10)
-    total, rows = dao.get_stock_list(int(page), int(size))
+    name = request.args.get('name', '')
+    total, rows = dao.get_stock_list(name, int(page), int(size))
     data = []
     for row in rows:
         id, code, code_name, is_init, status = row

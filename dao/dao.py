@@ -115,14 +115,23 @@ class Dao:
         sql = pre_sql.format(code, code_name, start_date)
         return self.execute(sql)
 
-    def get_stock_list(self, page, size):
+    def get_stock_list(self, name, page, size):
         '''获取股票列表'''
         offset = (page - 1) * size
-        sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
-        from `stocks` order by `id` DESC limit {},{}'''.format(offset, size)
+        if name != "":
+            sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
+            from `stocks` where `code_name` like '%{}%' order by `id` DESC limit {},{}'''.format(
+                name, offset, size)
+        else:
+            sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
+            from `stocks` order by `id` DESC limit {},{}'''.format(
+                offset, size)
         data = self.select(sql)
 
-        total_sql = "select count(*) as total from `stocks`"
+        if name != "":
+            total_sql = "select count(*) as total from `stocks` where `code_name` like '%{}%'".format(name)
+        else:
+            total_sql = "select count(*) as total from `stocks`"
         total, = self.get(total_sql)
         return (total, data)
 
