@@ -115,11 +115,16 @@ class Dao:
         sql = pre_sql.format(code, code_name, start_date)
         return self.execute(sql)
 
-    def get_stock_list(self):
+    def get_stock_list(self, page, size):
         '''获取股票列表'''
+        offset = (page - 1) * size
         sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
-        from `stocks` order by `id` DESC'''
-        return self.select(sql)
+        from `stocks` order by `id` DESC limit {},{}'''.format(offset, size)
+        data = self.select(sql)
+
+        total_sql = "select count(*) as total from `stocks`"
+        total, = self.get(total_sql)
+        return (total, data)
 
     def get_init_date(self, code):
         '''获取某股初始化日期'''

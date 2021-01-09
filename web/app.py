@@ -213,7 +213,9 @@ def delete():
 @app.route('/stock/list')
 def list():
     '''股票列表'''
-    rows = dao.get_stock_list()
+    page = request.args.get('page', 1)
+    size = request.args.get('size', 10)
+    total, rows = dao.get_stock_list(int(page), int(size))
     data = []
     for row in rows:
         id, code, code_name, is_init, status = row
@@ -225,8 +227,12 @@ def list():
             'status': status
         }
         data.append(uint)
+    resp = {
+        'data': data,
+        'total': total,
+    }
 
-    return success(data)
+    return success(resp)
 
 
 @app.route('/price/monitor/save', methods=['post'])
