@@ -77,7 +77,7 @@ def get_bias():
 def deal_bias_data(data):
     '''处理bias数据'''
     biases = [row[1] for row in data]
-    levels = get_bias_level(biases)
+    win, levels = get_bias_level(biases)
 
     data_num = len(biases)
     if data_num < 10:    # 确保数据有两周
@@ -103,6 +103,7 @@ def deal_bias_data(data):
         'sell_bias': sell_bias,
         'biases': deal_data,
         'levels': levels,
+        'win': win,
     }
     return result
 
@@ -123,6 +124,7 @@ def get_bias_level(biases):
         '5~10': 0,
         '10': 0,
     }
+    win_num = 0
     for bias in biases:
         if bias < -10:
             levels['-10'] += 1
@@ -135,14 +137,20 @@ def get_bias_level(biases):
         elif -1 <= bias <= 1:
             levels['-1~1'] += 1
         elif 1 < bias < 3:
+            win_num += 1
             levels['1~3'] += 1
         elif 3 <= bias < 5:
+            win_num += 1
             levels['3~5'] += 1
         elif 5 <= bias < 10:
+            win_num += 1
             levels['5~10'] += 1
         else:
+            win_num += 1
             levels['10'] += 1
-    return levels
+    win_per = round(win_num / len(biases) * 100, 2)
+    win = "{}%".format(win_per)
+    return (win, levels)
 
 
 def deal_data(data, data_type):

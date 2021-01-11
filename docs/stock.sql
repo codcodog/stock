@@ -29,7 +29,7 @@ CREATE TABLE `bias_22` (
   `bias` decimal(12,2) NOT NULL COMMENT '22 日 bias',
   PRIMARY KEY (`id`),
   KEY `code` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=5903 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=33374 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `crawl_log` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=875 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,14 +61,14 @@ DROP TABLE IF EXISTS `price_monitor`;
 CREATE TABLE `price_monitor` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL,
-  `ave` decimal(12,2) NOT NULL COMMENT '均价，一般为 22 日平均价格',
-  `buy_bias` decimal(12,2) NOT NULL,
-  `sell_bias` decimal(12,2) NOT NULL,
+  `buy_price` decimal(12,2) NOT NULL,
+  `sell_price` decimal(12,2) NOT NULL,
+  `message` text NOT NULL,
   `status` tinyint unsigned NOT NULL COMMENT '是否开启，0：关闭，1：开启',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '备注信息',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -95,7 +95,7 @@ CREATE TABLE `stock_day` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `index2` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=6057 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34166 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,7 +115,7 @@ CREATE TABLE `stocks` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -127,4 +127,4 @@ CREATE TABLE `stocks` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-04 18:33:28
+-- Dump completed on 2021-01-10  0:54:35
