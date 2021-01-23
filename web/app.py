@@ -254,11 +254,15 @@ def price_monitor_save():
         return errs
 
     code = request.json.get('code', '')
+    monitor_type = request.json.get('type')
     status = request.json.get('status')
     message = request.json.get('message', '')
-    buy_bias = request.json.get('buy_price', 0)
-    sell_bias = request.json.get('sell_price', 0)
-    done = dao.save_price_monitor(code, buy_bias, sell_bias, message, status)
+    buy_bias = request.json.get('buy_bias', 0)
+    sell_bias = request.json.get('sell_bias', 0)
+    buy_price = request.json.get('buy_price', 0)
+    sell_price = request.json.get('sell_price', 0)
+    done = dao.save_price_monitor(code, monitor_type, buy_bias, sell_bias,
+                                  buy_price, sell_price, message, status)
     if done:
         return success()
     return error("保存失败")
@@ -274,9 +278,12 @@ def price_monitor():
     rows = dao.get_price_monitor(code)
     if len(rows) > 0:
         row = rows[0]
-        _, buy_price, sell_price, message, status = row
+        _, monitor_type, buy_bias, sell_bias, buy_price, sell_price, message, status = row
         data = {
             'status': status,
+            'type': monitor_type,
+            'buy_bias': float(round(buy_bias, 2)),
+            'sell_bias': float(round(sell_bias, 2)),
             'buy_price': float(round(buy_price, 2)),
             'sell_price': float(round(sell_price, 2)),
             'message': message,

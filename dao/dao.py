@@ -129,7 +129,8 @@ class Dao:
         data = self.select(sql)
 
         if name != "":
-            total_sql = "select count(*) as total from `stocks` where `code_name` like '%{}%'".format(name)
+            total_sql = "select count(*) as total from `stocks` where `code_name` like '%{}%'".format(
+                name)
         else:
             total_sql = "select count(*) as total from `stocks`"
         total, = self.get(total_sql)
@@ -224,13 +225,17 @@ class Dao:
         sql = pre_sql.format(*data)
         return self.execute(sql)
 
-    def save_price_monitor(self, code, buy_price, sell_price, message, status):
+    def save_price_monitor(self, code, monitor_type, buy_bias, sell_bias,
+                           buy_price, sell_price, message, status):
         '''新增/更新 价格监控'''
         data = self.get_price_monitor(code)
         if len(data) == 0:    # 新增
-            sql = '''INSERT INTO `price_monitor` (`code`, `buy_price`, `sell_price`,
-           `message`, `status`) VALUES ('{code}', {buy_price}, {sell_price}, '{message}', {status})'''.format(
+            sql = '''INSERT INTO `price_monitor` (`code`, `type`, `buy_bias`, `sell_bias`, `buy_price`, `sell_price`,
+           `message`, `status`) VALUES ('{code}', {monitor_type}, {buy_bias}, {sell_bias}, {buy_price}, {sell_price}, '{message}', {status})'''.format(
                 code=code,
+                monitor_type=monitor_type,
+                buy_bias=buy_bias,
+                sell_bias=sell_bias,
                 buy_price=buy_price,
                 sell_price=sell_price,
                 message=message,
@@ -238,18 +243,19 @@ class Dao:
             return self.execute(sql)
         else:    # 更新
             sql = '''update `price_monitor` set `message`='{}', `buy_price`={}, `sell_price`={},
-            `status`={} where `code`="{}"'''.format(message, buy_price,
-                                                    sell_price, status, code)
+            `status`={}, `type`={}, `buy_bias`={}, `sell_bias`={} where `code`="{}"'''.format(
+                message, buy_price, sell_price, status, monitor_type, buy_bias,
+                sell_bias, code)
             return self.execute(sql)
 
     def get_price_monitor(self, code):
         '''获取价格监控'''
-        sql = '''select `code`, `buy_price`, `sell_price`, `message`, `status`
+        sql = '''select `code`, `type`, `buy_bias`, `sell_bias`, `buy_price`, `sell_price`, `message`, `status`
         from `price_monitor` where `code`='{}' limit 1'''.format(code)
         return self.select(sql)
 
     def get_price_monitor_list(self):
         '''获取监控列表'''
-        sql = '''select `code`, `buy_price`, `sell_price` from
+        sql = '''select `code`, `type`, `buy_bias`, `sell_bias`, `buy_price`, `sell_price` from
         `price_monitor` where `status`=1'''
         return self.select(sql)

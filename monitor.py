@@ -11,6 +11,7 @@ from dao.dao import Dao
 from dingtalk.ding import Ding
 from decimal import Decimal
 from utils import config
+from utils import util
 
 dao = Dao()
 ding = Ding()
@@ -20,7 +21,7 @@ r = redis.StrictRedis(host=config.get("REDIS_HOST"),
 
 uri = "http://hq.sinajs.cn/list={}"
 MESSAGE_TPL = "[ALERT] {} {}"
-EXPIRE_TIME = 60 * 60 * 8    # 缓存8小时
+EXPIRE_TIME = 60 * 60 * 6    # 缓存8小时
 
 
 def start():
@@ -35,15 +36,36 @@ def start():
         return
 
     for row in list:
-        code, buy_price, sell_price = row
+        code, monitor_type, buy_bias, sell_bias, buy_price, sell_price = row
         name, price = get_price(code)
         if price == 0:    # 获取不到价格或者其他原因
             continue
 
-        if price <= buy_price:
-            notify(code, name, "BUY")
-        if price >= sell_price:
-            notify(code, name, "SELL")
+        if monitor_type == 0: # bias
+            ave_close = get_22_close(code)
+            if ave_close == 0:
+                continue
+            bias = round((price - ave_close) / ave_close * 100, 2)
+            if bias <= buy_bias:
+                notify(code, name, "BUY")
+            if bias >= sell_bias:
+                notify(code, name, "SELL")
+        else: # price
+            if price <= buy_price:
+                notify(code, name, "BUY")
+            if price >= sell_price:
+                notify(code, name, "SELL")
+
+def get_22_close(code):
+    '''获取最近22日股价平均值'''
+    date = datetime.today().strftime('%Y-%m-%d')
+    data = dao.get_22_stock_data(code, date)
+    if len(data) < 22:
+        return 0
+
+    prices = [row[0] for row in data]
+    ave_close = util.average(prices)
+    return ave_close
 
 
 def notify(code, name, action):
