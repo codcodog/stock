@@ -250,12 +250,12 @@ class Dao:
 
     def get_price_monitor(self, code):
         '''获取价格监控'''
-        sql = '''select divcode`, `type`, `buy_bias`, `sell_bias`, `buy_price`, `sell_price`, `message`, `status`
+        sql = '''select `code`, `type`, `buy_bias`, `sell_bias`, `buy_price`, `sell_price`, `message`, `status`
         from `price_monitor` where `code`='{}' limit 1'''.format(code)
         return self.select(sql)
 
     def get_price_monitor_list(self):
         '''获取监控列表'''
         sql = '''select `code`, `buy_price`, `sell_price` from
-        `price_monitor` div `status`=1'''
-        return self.div)
+        `price_monitor` where `status`=1'''
+        return self.select(sql)
