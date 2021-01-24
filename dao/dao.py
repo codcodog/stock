@@ -214,7 +214,7 @@ class Dao:
 
     def get_22_stock_data(self, code, date):
         '''获取某股22日数据'''
-        sql = "select close from `stock_day` where `code`='{}' and date < '{}' order by date DESC limit 22".format(
+        sql = "select close from `stock_day` where `code`='{}' and date <= '{}' order by date DESC limit 22".format(
             code, date)
         return self.select(sql)
 
