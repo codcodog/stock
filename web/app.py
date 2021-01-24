@@ -300,12 +300,20 @@ def validate_price_monitor():
     status = request.json.get('status')
     if status != 0 and status != 1:
         return error("非法 status 值")
+
+    monitor_type = request.json.get('type')
     buy_price = request.json.get('buy_price', 0)
-    if buy_price == 0:
-        return error("buy_price 不能为空")
+    if monitor_type == 1 and buy_price == 0:
+        return error("buy_price 不能为空/0")
     sell_price = request.json.get('sell_price', 0)
-    if sell_price == 0:
-        return error("sell_price 不能为空")
+    if monitor_type == 1 and sell_price == 0:
+        return error("sell_price 不能为空/0")
+    buy_bias = request.json.get('buy_bias', 0)
+    sell_bias = request.json.get('sell_bias', 0)
+    if monitor_type == 0 and buy_bias == 0:
+        return error("buy_bias 不能为空/0")
+    if monitor_type == 0 and sell_bias == 0:
+        return error("sell_bias 不能为空/0")
     return ''
 
 

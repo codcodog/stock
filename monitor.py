@@ -41,7 +41,7 @@ def start():
         if price == 0:    # 获取不到价格或者其他原因
             continue
 
-        if monitor_type == 0: # bias
+        if monitor_type == 0:    # bias
             ave_close = get_22_close(code)
             if ave_close == 0:
                 continue
@@ -50,11 +50,12 @@ def start():
                 notify(code, name, "BUY")
             if bias >= sell_bias:
                 notify(code, name, "SELL")
-        else: # price
+        else:    # price
             if price <= buy_price:
                 notify(code, name, "BUY")
             if price >= sell_price:
                 notify(code, name, "SELL")
+
 
 def get_22_close(code):
     '''获取最近22日股价平均值'''
