@@ -88,6 +88,7 @@ def deal_bias_data(data):
     biases.sort()
     buy_bias = float(round(biases[index], 2))
     sell_bias = float(round(biases[-(index + 1)], 2))
+    mid_bias = float(round(util.median(biases), 2))
 
     deal_data = []
     for row in data:
@@ -101,6 +102,7 @@ def deal_bias_data(data):
     result = {
         'buy_bias': buy_bias,
         'sell_bias': sell_bias,
+        'mid_bias': mid_bias,
         'biases': deal_data,
         'levels': levels,
         'win': win,
