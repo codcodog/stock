@@ -76,6 +76,7 @@ def get_ttm():
     data = dao.get_ttm(code, start_date, end_date)
     return success(deal_ttm_data(data))
 
+
 def deal_ttm_data(data):
     '''处理 ttm 数据'''
     if len(data) == 0:
@@ -87,7 +88,7 @@ def deal_ttm_data(data):
 
     ttms.sort()
     buy_ttm = float(round(ttms[index], 2))
-    sell_ttm = float(round(ttms[-(index+1)], 2))
+    sell_ttm = float(round(ttms[-(index + 1)], 2))
     mid_ttm = float(round(util.median(ttms), 2))
 
     deal_data = []
@@ -106,6 +107,7 @@ def deal_ttm_data(data):
         'ttms': deal_data,
     }
     return result
+
 
 @app.route('/data/bias')
 def get_bias():
