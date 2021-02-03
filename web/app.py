@@ -1,7 +1,6 @@
 import json
 import math
 
-import numpy as np
 from flask import Flask
 from flask import request
 
@@ -61,28 +60,79 @@ def get_high():
     return success(deal_data(data, 'high'))
 
 
+@app.route('/data/ttm')
+def get_ttm():
+    '''获取 ttm'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    start_date = request.args.get('start_date')
+    if start_date == '':
+        return error('start_date 不能为空')
+    end_date = request.args.get('end_date')
+    if end_date == '':
+        return error('end_date 不能为空')
+
+    data = dao.get_ttm(code, start_date, end_date)
+    return success(deal_ttm_data(data))
+
+def deal_ttm_data(data):
+    '''处理 ttm 数据'''
+    if len(data) == 0:
+        return []
+
+    ttms = [row[1] for row in data]
+    data_num = len(ttms)
+    index = round(data_num * 0.1)
+
+    ttms.sort()
+    buy_ttm = float(round(ttms[index], 2))
+    sell_ttm = float(round(ttms[-(index+1)], 2))
+    mid_ttm = float(round(util.median(ttms), 2))
+
+    deal_data = []
+    for row in data:
+        date, ttm = row
+        uint = {
+            'date': date.strftime("%Y-%m-%d"),
+            'ttm': float(round(ttm, 2)),
+        }
+        deal_data.append(uint)
+
+    result = {
+        'buy_ttm': buy_ttm,
+        'sell_ttm': sell_ttm,
+        'mid_ttm': mid_ttm,
+        'ttms': deal_data,
+    }
+    return result
+
 @app.route('/data/bias')
 def get_bias():
     '''获取某股22日bias'''
     code = request.args.get('code', '')
     if code == '':
         return error("code 不能为空")
-
     start_date = request.args.get('start_date')
+    if start_date == '':
+        return error('start_date 不能为空')
     end_date = request.args.get('end_date')
+    if end_date == '':
+        return error('end_date 不能为空')
+
     data = dao.get_bias(code, start_date, end_date)
     return success(deal_bias_data(data))
 
 
 def deal_bias_data(data):
     '''处理bias数据'''
+    if len(data) == 0:
+        return []
+
     biases = [row[1] for row in data]
     win, levels = get_bias_level(biases)
 
     data_num = len(biases)
-    if data_num < 10:    # 确保数据有两周
-        buy_bias = 0
-        sell_bias = 0
     index = round(data_num * 0.1)
 
     biases.sort()
