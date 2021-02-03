@@ -26,7 +26,7 @@ class Base:
         '''获取每天股票数据'''
         rs = bs.query_history_k_data_plus(
             code,
-            "date,code,open,high,low,close,preclose,volume,amount,peTTM,turn",
+            "date,code,open,high,low,close,preclose,volume,amount,peTTM",
             start_date=start_date,
             end_date=end_date,
             frequency="d",

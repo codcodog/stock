@@ -19,10 +19,8 @@ class Dao:
 
     def multi_add_stock_data(self, data):
         '''批量新增股票数据'''
-        pre_sql = '''INSERT INTO `stock_day` (`date`, `code`, `open`,
-                    `high`, `low`, `close`, `preclose`, `volume`, `amount`, `pe_ttm`, `turn`)
-                    VALUES '''
-        tpl = "('{}', '{}', {}, {}, {}, {}, {}, {}, {}, {}, {}),"
+        pre_sql = '''INSERT INTO `stock_day` (`date`, `code`, `open`, `high`, `low`, `close`, `preclose`, `volume`, `amount`, `pe_ttm`) VALUES '''
+        tpl = "('{}', '{}', {}, {}, {}, {}, {}, {}, {}, {}),"
         multi_tpl = ""
         i = 0
         for stock_data in data:
