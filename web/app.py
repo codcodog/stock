@@ -1,7 +1,7 @@
 import json
 import math
 
-from flask import Flask
+from flask import Flask, g
 from flask import request
 
 from dao.dao import Dao
@@ -12,13 +12,12 @@ from utils import config
 from utils import util
 
 app = Flask(__name__)
-dao = Dao()
 
 
 @app.before_request
 def ping_mysql():
     '''确保 mysql 连接没有丢失'''
-    dao.conn.ping(reconnect=True)
+    g.dao = Dao()
 
 
 @app.route('/data/close')
@@ -30,7 +29,7 @@ def get_close():
 
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    data = dao.get_close(code, start_date, end_date)
+    data = g.dao.get_close(code, start_date, end_date)
     return success(deal_data(data, 'close'))
 
 
@@ -43,7 +42,7 @@ def get_low():
 
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    data = dao.get_low(code, start_date, end_date)
+    data = g.dao.get_low(code, start_date, end_date)
     return success(deal_data(data, 'low'))
 
 
@@ -56,7 +55,7 @@ def get_high():
 
     start_date = request.args.get('start_date')
     end_date = request.args.get('end_date')
-    data = dao.get_high(code, start_date, end_date)
+    data = g.dao.get_high(code, start_date, end_date)
     return success(deal_data(data, 'high'))
 
 
@@ -73,7 +72,7 @@ def get_ttm():
     if end_date == '':
         return error('end_date 不能为空')
 
-    data = dao.get_ttm(code, start_date, end_date)
+    data = g.dao.get_ttm(code, start_date, end_date)
     return success(deal_ttm_data(data))
 
 
@@ -122,7 +121,7 @@ def get_bias():
     if end_date == '':
         return error('end_date 不能为空')
 
-    data = dao.get_bias(code, start_date, end_date)
+    data = g.dao.get_bias(code, start_date, end_date)
     return success(deal_bias_data(data))
 
 
@@ -254,7 +253,7 @@ def add():
     if start_date == '':
         return error("start_date 不能为空")
 
-    done = dao.add_stock(code, code_name, start_date)
+    done = g.dao.add_stock(code, code_name, start_date)
     if done:
         return success()
     else:
@@ -267,7 +266,7 @@ def delete():
     code = request.json.get('code', '')
     if code == '':
         return error("code 不能为空")
-    done = dao.delete_code(code)
+    done = g.dao.delete_code(code)
     if done:
         return success()
     else:
@@ -280,7 +279,7 @@ def list():
     page = request.args.get('page', 1)
     size = request.args.get('size', 10)
     name = request.args.get('name', '')
-    total, rows = dao.get_stock_list(name, int(page), int(size))
+    total, rows = g.dao.get_stock_list(name, int(page), int(size))
     data = []
     for row in rows:
         id, code, code_name, is_init, status = row
@@ -315,8 +314,8 @@ def price_monitor_save():
     sell_bias = request.json.get('sell_bias', 0)
     buy_price = request.json.get('buy_price', 0)
     sell_price = request.json.get('sell_price', 0)
-    done = dao.save_price_monitor(code, monitor_type, buy_bias, sell_bias,
-                                  buy_price, sell_price, message, status)
+    done = g.dao.save_price_monitor(code, monitor_type, buy_bias, sell_bias,
+                                    buy_price, sell_price, message, status)
     if done:
         return success()
     return error("保存失败")
@@ -329,7 +328,7 @@ def price_monitor():
     if code == '':
         return error("code 不能为空")
 
-    rows = dao.get_price_monitor(code)
+    rows = g.dao.get_price_monitor(code)
     if len(rows) > 0:
         row = rows[0]
         _, monitor_type, buy_bias, sell_bias, buy_price, sell_price, message, status = row
@@ -385,7 +384,7 @@ def init():
     if code == '':
         return error("code 不能为空")
 
-    result = dao.get_init_date(code)
+    result = g.dao.get_init_date(code)
     if not result:
         log.error("获取 {} 初始化日期失败".format(code))
         return error("服务异常.")
@@ -402,7 +401,7 @@ def track():
     code = request.json.get('code', '')
     if code == '':
         return error("code 不能为空")
-    dao.track_stock(code)
+    g.dao.track_stock(code)
     return success()
 
 
@@ -412,7 +411,7 @@ def untrack():
     code = request.json.get('code', '')
     if code == '':
         return error("code 不能为空")
-    dao.untrack_stock(code)
+    g.dao.untrack_stock(code)
     return success()
 
 
@@ -422,7 +421,7 @@ def info():
     code = request.args.get('code', '')
     if code == '':
         return error("code 不能为空")
-    result = dao.get_stock_info(code)
+    result = g.dao.get_stock_info(code)
     if not result:
         log.error("获取 {} 基本信息失败".format(code))
         return error("服务异常.")
@@ -444,7 +443,7 @@ def update_info():
     code_name = request.json.get('name', '')
     if code_name == '':
         return error("name 不能为空")
-    dao.update_stock_info(code, code_name)
+    g.dao.update_stock_info(code, code_name)
     return success()
 
 
@@ -465,7 +464,7 @@ def log_list():
     code = request.args.get('code', '')
     if code == '':
         return error("code 不能为空")
-    rows = dao.get_stock_log(code)
+    rows = g.dao.get_stock_log(code)
     data = []
     for row in rows:
         id, code, status, message, date = row
@@ -483,7 +482,7 @@ def log_list():
 @app.route('/stock/codes')
 def get_codes():
     '''获取 codes 列表'''
-    result = dao.get_codes()
+    result = g.dao.get_codes()
     data = []
     for row in result:
         code, name = row
