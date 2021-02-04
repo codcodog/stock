@@ -183,7 +183,7 @@ class Dao:
 
     def get_codes(self):
         '''获取 codes 列表'''
-        sql = '''select `code`, `code_name` from `stocks` order by id ASC'''
+        sql = '''select `code`, `code_name` from `stocks` order by id DESC'''
         return self.select(sql)
 
     def delete_code(self, code):
