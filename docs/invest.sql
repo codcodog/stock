@@ -29,7 +29,7 @@ CREATE TABLE `bias_22` (
   `bias` decimal(12,2) NOT NULL COMMENT '22 日 bias',
   PRIMARY KEY (`id`),
   KEY `code` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=33374 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -48,7 +48,7 @@ CREATE TABLE `crawl_log` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=875 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,6 +61,9 @@ DROP TABLE IF EXISTS `price_monitor`;
 CREATE TABLE `price_monitor` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL,
+  `type` tinyint NOT NULL DEFAULT '0' COMMENT '监控类型，0：bias，1：price',
+  `buy_bias` decimal(12,2) NOT NULL,
+  `sell_bias` decimal(12,2) NOT NULL,
   `buy_price` decimal(12,2) NOT NULL,
   `sell_price` decimal(12,2) NOT NULL,
   `message` text NOT NULL,
@@ -68,7 +71,7 @@ CREATE TABLE `price_monitor` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '备注信息',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -88,14 +91,14 @@ CREATE TABLE `stock_day` (
   `preclose` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '昨日收盘价',
   `volume` bigint NOT NULL DEFAULT '0' COMMENT '成交数量（单位：股）',
   `amount` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '成交金额',
-  `turn` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '换手率',
-  `pe_ttm` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '滚动市盈率',
+  `turn` decimal(16,6) NOT NULL DEFAULT '0.000000' COMMENT '换手率',
+  `pe_ttm` decimal(16,6) NOT NULL DEFAULT '0.000000' COMMENT '滚动市盈率',
   `date` date NOT NULL COMMENT '日期',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `index2` (`code`,`date`)
-) ENGINE=InnoDB AUTO_INCREMENT=34166 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -115,7 +118,7 @@ CREATE TABLE `stocks` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `status` tinyint NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -127,4 +130,4 @@ CREATE TABLE `stocks` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-01-10  0:54:35
+-- Dump completed on 2021-04-24 14:37:44
