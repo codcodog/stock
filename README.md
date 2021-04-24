@@ -22,6 +22,15 @@ $ source venv/bin/activate
 (venv) $ uwsgi www.ini
 ```
 
+配置 `supervisor`
+```
+$ cp supervisor.stock.com.ini.example /etc/supervisord.d/stock.com.ini
+```
+
+配置 `nginx`
+```
+$ cp nginx.stock.com.conf.example /etc/nginx/conf.d/stock.com.conf
+```
 
 ### 项目说明
 项目主要由两部分组成：`股票数据获取` 和 `提供 web 端数据接口`.

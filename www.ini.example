@@ -1,6 +1,7 @@
 [uwsgi]
 socket = 127.0.0.1:8089
-chdir = /home/cryven/stock/
+chdir = /data/www/stock/
+home = /data/www/stock/venv
 wsgi-file = www.py
 processes = 4
 threads = 2
