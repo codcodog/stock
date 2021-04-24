@@ -1,0 +1,15 @@
+server {
+    listen       80;
+    server_name  stock.codcodog.com;
+    location / {
+        add_header Access-Control-Allow-Origin *;
+        add_header Access-Control-Allow-Headers 'Authorization,Content-Type,Accept,Origin,User-Agent,DNT,Cache-Control,X-Mx-ReqToken,X-Requested-With,x-token';
+        add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+
+        include  uwsgi_params;
+        uwsgi_pass  127.0.0.1:8089;
+        uwsgi_param UWSGI_SCRIPT www;
+        uwsgi_param UWSGI_CHDIR /data/www/stock;  #指定项目目录
+        uwsgi_param UWSGI_PYHOME /data/www/stock/venv;
+    }
+}

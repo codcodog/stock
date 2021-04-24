@@ -1,0 +1,9 @@
+[program:stock]
+command=/data/www/stock/venv/bin/uwsgi www.ini
+numprocs=1
+directory=/data/www/stock
+user=root
+autorestart=true            
+redirect_stderr=true
+stdout_logfile=/var/log/stock.log
+loglevel=info
