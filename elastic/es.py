@@ -72,6 +72,8 @@ class ES:
 
     def bulk_index(self, data):
         '''批量索引数据'''
+        if len(data) == 0:
+            return None
         return helpers.bulk(self.es, data)
 
     def create_alias(self, index_name):

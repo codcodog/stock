@@ -64,3 +64,7 @@ def incr_index_stock(data):
         }
         stocks.append(stock)
     es.bulk_index(stocks)
+
+
+if __name__ == '__main__':
+    index_all_stocks()
