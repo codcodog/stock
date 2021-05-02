@@ -80,3 +80,54 @@ class ES:
         '''创建别名'''
         return self.es.indices.put_alias(index=index_name,
                                          name=STOCK_ALIAS_INDEX_NAME)
+
+    def get_stock_day_data(self, code, start_date, end_date):
+        '''获取个股数据'''
+        body = {
+            "query": {
+                "bool": {
+                    "must": [{
+                        "term": {
+                            "code.keyword": {
+                                "value": code,
+                            }
+                        }
+                    }, {
+                        "range": {
+                            "date": {
+                                "gte": start_date,
+                                "lte": end_date,
+                            }
+                        }
+                    }]
+                }
+            },
+            "size": 1000,
+            "sort": [{
+                "date": {
+                    "order": "asc"
+                }
+            }],
+            "aggs": {
+                "high": {
+                    "percentiles": {
+                        "field": "high",
+                        "percents": [10, 50, 90]
+                    }
+                },
+                "low": {
+                    "percentiles": {
+                        "field": "low",
+                        "percents": [10, 50, 90]
+                    }
+                },
+                "close": {
+                    "percentiles": {
+                        "field": "close",
+                        "percents": [10, 50, 90]
+                    }
+                }
+            }
+        }
+        print(body)
+        return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)

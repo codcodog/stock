@@ -45,7 +45,7 @@ def incr_index_stock(data):
     '''增量索引数据'''
     stocks = []
     for item in data:
-        _, code, open, high, low, close, preclose, volume, amount, turn, pe_ttm, d, *rest = item
+        d, code, open, high, low, close, preclose, volume, amount, pe_ttm = item
         stock = {
             '_index': STOCK_ALIAS_INDEX_NAME,
             '_source': {
@@ -59,7 +59,7 @@ def incr_index_stock(data):
                 'amount': amount,
                 'turn': turn,
                 'pe_ttm': pe_ttm,
-                'date': d.strftime("%Y-%m-%d"),
+                'date': d,
             }
         }
         stocks.append(stock)

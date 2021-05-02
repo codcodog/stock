@@ -5,6 +5,7 @@ from flask import Flask, g
 from flask import request
 
 from dao.dao import Dao
+from elastic.es import ES
 from crawl.crawl import Crawl
 from crawl.init import Init
 from utils import log
@@ -18,6 +19,61 @@ app = Flask(__name__)
 def ping_mysql():
     '''确保 mysql 连接没有丢失'''
     g.dao = Dao()
+    g.es = ES()
+
+
+@app.route('/stock/data')
+def get_data():
+    '''获取股票数据'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    start_date = request.args.get('start_date', '')
+    if start_date == '':
+        return error('start date 不能为空')
+    end_date = request.args.get('end_date', '')
+    if end_date == '':
+        return error('end date 不能为空')
+
+    result = g.es.get_stock_day_data(code, start_date, end_date)
+    stock_data = result['hits']['hits']
+    data = deal_es_data(stock_data)
+
+    aggs_data = result['aggregations']
+    low, mid, high = deal_es_aggs_data(aggs_data)
+    resp = {
+        'low': low,
+        'mid': mid,
+        'high': high,
+        'prices': data,
+    }
+    return success(resp)
+
+
+def deal_es_data(data):
+    '''处理 es 数据'''
+    resp_data = []
+    for row in data:
+        item = {
+            'date': row['_source']['date'],
+            'close': round(row['_source']['close'], 2),
+        }
+        resp_data.append(item)
+    return resp_data
+
+
+def deal_es_aggs_data(data):
+    '''处理 es 聚合数据'''
+    high = data['high']['values']['90.0']
+    if high is None:
+        high = 0
+    low = data['low']['values']['10.0']
+    if low is None:
+        low = 0
+    mid = data['close']['values']['50.0']
+    if mid is None:
+        mid = 0
+    return low, mid, high
 
 
 @app.route('/data/close')
