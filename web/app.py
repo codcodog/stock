@@ -67,12 +67,18 @@ def deal_es_aggs_data(data):
     high = data['high']['values']['90.0']
     if high is None:
         high = 0
+    else:
+        high = round(high, 2)
     low = data['low']['values']['10.0']
     if low is None:
         low = 0
+    else:
+        low = round(low, 2)
     mid = data['close']['values']['50.0']
     if mid is None:
         mid = 0
+    else:
+        mid = round(mid, 2)
     return low, mid, high
 
 
