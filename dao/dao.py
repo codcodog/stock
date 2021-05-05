@@ -262,3 +262,9 @@ class Dao:
         '''获取 ttm'''
         fields = 'date, pe_ttm'
         return self.get_data(fields, code, start_date, end_date)
+
+    def get_stock_day_data(self, code):
+        '''获取个股数据'''
+        sql = '''select * from `stock_day` where `code`='{code}' order by `date` asc'''.format(
+            code=code)
+        return self.select(sql)

@@ -9,7 +9,7 @@
 设置配置信息
 ```
 $ cp .env.example .env
-$ cp www.ini.example www.ini
+$ cp conf.d/www.ini.example www.ini
 ```
 > 用户登录目前是直接设置在配置文件的
 
@@ -24,12 +24,21 @@ $ source venv/bin/activate
 
 配置 `supervisor`
 ```
-$ cp supervisor.stock.com.ini.example /etc/supervisord.d/stock.com.ini
+$ cp conf.d/supervisor.stock.com.ini.example /etc/supervisord.d/stock.com.ini
 ```
 
 配置 `nginx`
 ```
-$ cp nginx.stock.com.conf.example /etc/nginx/conf.d/stock.com.conf
+$ cp conf.d/nginx.stock.com.conf.example /etc/nginx/conf.d/stock.com.conf
+```
+
+定时任务
+```
+# 价格监控
+* 9-14 * * 1-5 /data/www/stock/scripts/monitor
+
+# 定时增量爬取
+0 19 * * 1-5 /data/www/stock/scripts/crawl
 ```
 
 ### 项目说明

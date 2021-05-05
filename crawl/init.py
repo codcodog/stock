@@ -10,8 +10,15 @@ class Init(Base):
         start_date = start_date.strftime("%Y-%m-%d")
         end_date = date.today().strftime("%Y-%m-%d")
         data = self.get_stock_data(code, start_date, end_date)
+
         self.dao.multi_add_stock_data(data)
+        print('添加个股数据完成')
+
         self.cal_22bias(data)
+        print('计算 bias 完成')
+
+        self.incr_index_stock(data)
+        print('es 索引完成')
 
         # 更新初始化状态和跟踪状态
         self.dao.stock_inited(code)
