@@ -129,5 +129,16 @@ class ES:
                 }
             }
         }
-        print(body)
         return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)
+
+
+    def remove_stock_data(self, code):
+        '''删除个股数据'''
+        body = {
+            "query": {
+                "term": {
+                    "code.keyword": code,
+                }
+            }
+        }
+        return self.es.delete_by_query(index=STOCK_ALIAS_INDEX_NAME, body=body)

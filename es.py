@@ -37,33 +37,8 @@ def index_all_stocks():
             }
             stocks.append(stock)
         es.bulk_index(stocks)
-
     es.create_alias(index_name)
 
-
-def incr_index_stock(data):
-    '''增量索引数据'''
-    stocks = []
-    for item in data:
-        d, code, open, high, low, close, preclose, volume, amount, pe_ttm = item
-        stock = {
-            '_index': STOCK_ALIAS_INDEX_NAME,
-            '_source': {
-                'code': code,
-                'open': open,
-                'high': high,
-                'low': low,
-                'close': close,
-                'preclose': preclose,
-                'volume': volume,
-                'amount': amount,
-                'turn': turn,
-                'pe_ttm': pe_ttm,
-                'date': d,
-            }
-        }
-        stocks.append(stock)
-    es.bulk_index(stocks)
 
 
 if __name__ == '__main__':

@@ -330,6 +330,7 @@ def delete():
         return error("code 不能为空")
     done = g.dao.delete_code(code)
     if done:
+        g.es.remove_stock_data(code)
         return success()
     else:
         return error("删除失败")
