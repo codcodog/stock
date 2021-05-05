@@ -22,6 +22,7 @@ class Crawl(Base):
             if len(data) > 0:
                 self.dao.multi_add_stock_data(data)
                 self.cal_22bias(data)
+                self.incr_index_stock(data)
 
                 # 爬取日志记录
                 log_data = code, 0, '', end_date

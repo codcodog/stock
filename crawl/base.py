@@ -4,6 +4,7 @@ from decimal import *
 
 from utils import config
 from dao.dao import Dao
+from elastic.es import ES, STOCK_ALIAS_INDEX_NAME
 from utils import util
 
 
@@ -17,6 +18,7 @@ class Base:
             raise Exception(message)
 
         self.dao = Dao()
+        self.es = ES()
 
     def __del__(self):
         # 登出系统
@@ -54,3 +56,26 @@ class Base:
             ave_close = util.average(prices)
             bias = round((close - ave_close) / ave_close * 100, 2)
             self.dao.add_22_bias(code, date, bias)
+
+    def incr_index_stock(self, data):
+        '''增量索引数据'''
+        stocks = []
+        for item in data:
+            d, code, open, high, low, close, preclose, volume, amount, pe_ttm = item
+            stock = {
+                '_index': STOCK_ALIAS_INDEX_NAME,
+                '_source': {
+                    'code': code,
+                    'open': open,
+                    'high': high,
+                    'low': low,
+                    'close': close,
+                    'preclose': preclose,
+                    'volume': volume,
+                    'amount': amount,
+                    'pe_ttm': pe_ttm,
+                    'date': d,
+                }
+            }
+            stocks.append(stock)
+        self.es.bulk_index(stocks)
