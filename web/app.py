@@ -56,7 +56,7 @@ def deal_es_data(data):
     for row in data:
         item = {
             'date': row['_source']['date'],
-            'close': round(row['_source']['close'], 2),
+            'close': round(float(row['_source']['close']), 2),
         }
         resp_data.append(item)
     return resp_data
