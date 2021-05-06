@@ -7,4 +7,4 @@ PROJECT_PATH=$(dirname "$SCRIPT_PATH")
 
 cd "$PROJECT_PATH"
 source venv/bin/activate
-python3 es.py >> logs/es.log
+python3 es.py bias >> logs/es.log
