@@ -148,19 +148,19 @@ class ES:
                 "high": {
                     "percentiles": {
                         "field": "high",
-                        "percents": [10, 50, 90]
+                        "percents": [80]
                     }
                 },
                 "low": {
                     "percentiles": {
                         "field": "low",
-                        "percents": [10, 50, 90]
+                        "percents": [5]
                     }
                 },
                 "close": {
                     "percentiles": {
                         "field": "close",
-                        "percents": [10, 50, 90]
+                        "percents": [50]
                     }
                 }
             }
@@ -176,4 +176,56 @@ class ES:
                 }
             }
         }
-        return self.es.delete_by_query(index=STOCK_ALIAS_INDEX_NAME, body=body)
+        self.es.delete_by_query(index=STOCK_ALIAS_INDEX_NAME, body=body)
+        self.es.delete_by_query(index=BIAS_ALIAS_INDEX_NAME, body=body)
+
+    def incr_index_bias(self, code, date, bias):
+        '''增量索引 bias 数据'''
+        bias_data = {
+            '_index': BIAS_ALIAS_INDEX_NAME,
+            '_source': {
+                'code': code,
+                'date': date,
+                'bias': bias,
+            }
+        }
+        data = [bias_data]
+        return self.bulk_index(data)
+
+    def get_bias_data(self, code, start_date, end_date):
+        '''获取某股 bias 数据'''
+        body = {
+            "query": {
+                "bool": {
+                    "must": [{
+                        "term": {
+                            "code.keyword": {
+                                "value": code,
+                            }
+                        }
+                    }, {
+                        "range": {
+                            "date": {
+                                "gte": start_date,
+                                "lte": end_date,
+                            }
+                        }
+                    }]
+                }
+            },
+            "size": 1000,
+            "sort": [{
+                "date": {
+                    "order": "asc"
+                }
+            }],
+            "aggs": {
+                "bias": {
+                    "percentiles": {
+                        "field": "bias",
+                        "percents": [5, 50, 80]
+                    }
+                }
+            }
+        }
+        return self.es.search(index=BIAS_ALIAS_INDEX_NAME, body=body)
