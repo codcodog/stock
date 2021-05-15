@@ -56,6 +56,7 @@ class Base:
             ave_close = util.average(prices)
             bias = round((close - ave_close) / ave_close * 100, 2)
             self.dao.add_22_bias(code, date, bias)
+            self.es.incr_index_bias(code, date, bias)
 
     def incr_index_stock(self, data):
         '''增量索引数据'''
