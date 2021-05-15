@@ -82,44 +82,6 @@ def deal_es_aggs_data(data):
     return low, mid, high
 
 
-@app.route('/data/close')
-def get_close():
-    '''获取某股 close 数据'''
-    code = request.args.get('code', '')
-    if code == '':
-        return error("code 不能为空")
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    data = g.dao.get_close(code, start_date, end_date)
-    return success(deal_data(data, 'close'))
-
-
-@app.route('/data/low')
-def get_low():
-    '''获取某股 low 数据'''
-    code = request.args.get('code', '')
-    if code == '':
-        return error("code 不能为空")
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    data = g.dao.get_low(code, start_date, end_date)
-    return success(deal_data(data, 'low'))
-
-
-@app.route('/data/high')
-def get_high():
-    '''获取某股 high 数据'''
-    code = request.args.get('code', '')
-    if code == '':
-        return error("code 不能为空")
-
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    data = g.dao.get_high(code, start_date, end_date)
-    return success(deal_data(data, 'high'))
-
 
 @app.route('/data/ttm')
 def get_ttm():
@@ -211,41 +173,6 @@ def deal_es_bias_data(data):
     return result
 
 
-def deal_bias_data(data):
-    '''处理bias数据'''
-    if len(data) == 0:
-        return []
-
-    biases = [row[1] for row in data]
-    win, levels = get_bias_level(biases)
-
-    data_num = len(biases)
-    index = round(data_num * 0.1)
-
-    biases.sort()
-    buy_bias = float(round(biases[index], 2))
-    sell_bias = float(round(biases[-(index + 1)], 2))
-    mid_bias = float(round(util.median(biases), 2))
-
-    deal_data = []
-    for row in data:
-        date, bias = row
-        uint = {
-            'date': date.strftime("%Y-%m-%d"),
-            'bias': float(round(bias, 2)),
-        }
-        deal_data.append(uint)
-
-    result = {
-        'buy_bias': buy_bias,
-        'sell_bias': sell_bias,
-        'mid_bias': mid_bias,
-        'biases': deal_data,
-        'levels': levels,
-        'win': win,
-    }
-    return result
-
 
 def get_bias_level(biases):
     '''获取 bias 各个 level 分布
@@ -290,40 +217,6 @@ def get_bias_level(biases):
     win_per = round(win_num / len(biases) * 100, 2)
     win = "{}%".format(win_per)
     return (win, levels)
-
-
-def deal_data(data, data_type):
-    '''处理数据'''
-    prices = [row[1] for row in data]
-    ave = float(round(util.average(prices), 2))
-    mid = float(round(util.median(prices), 2))
-
-    prices.sort()
-    index = math.floor(len(prices) * 0.2)
-    if data_type == 'low':
-        price28 = prices[index]
-    elif data_type == 'high':
-        price28 = prices[-(index + 1)]
-    else:
-        price28 = 0
-    price28 = float(round(price28, 2))
-
-    deal_data = []
-    for row in data:
-        date, price = row
-        uint = {
-            'date': date.strftime("%Y-%m-%d"),
-            'price': float(round(price, 2)),
-        }
-        deal_data.append(uint)
-
-    result = {
-        'ave': ave,
-        'mid': mid,
-        'price28': price28,
-        'prices': deal_data,
-    }
-    return result
 
 
 @app.route('/stock/add', methods=['post'])
@@ -481,25 +374,6 @@ def init():
 
     return success()
 
-
-@app.route('/stock/track', methods=['post'])
-def track():
-    '''跟踪该股'''
-    code = request.json.get('code', '')
-    if code == '':
-        return error("code 不能为空")
-    g.dao.track_stock(code)
-    return success()
-
-
-@app.route('/stock/untrack', methods=['post'])
-def untrack():
-    '''不再跟踪某股'''
-    code = request.json.get('code', '')
-    if code == '':
-        return error("code 不能为空")
-    g.dao.untrack_stock(code)
-    return success()
 
 
 @app.route('/stock/info')
