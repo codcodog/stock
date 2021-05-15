@@ -172,7 +172,7 @@ def deal_ttm_data(data):
 
 @app.route('/data/bias')
 def get_bias():
-    '''获取某股22日bias'''
+    '''获取某股bias'''
     code = request.args.get('code', '')
     if code == '':
         return error("code 不能为空")
@@ -183,8 +183,32 @@ def get_bias():
     if end_date == '':
         return error('end_date 不能为空')
 
-    data = g.dao.get_bias(code, start_date, end_date)
-    return success(deal_bias_data(data))
+    data = g.es.get_bias_data(code, start_date, end_date)
+    return success(deal_es_bias_data(data))
+
+
+def deal_es_bias_data(data):
+    deal_data = []
+    for row in data['hits']['hits']:
+        item = {
+            'date': row['_source']['date'],
+            'bias': round(float(row['_source']['bias']), 2),
+        }
+        deal_data.append(item)
+
+    biases = [float(row['_source']['bias']) for row in data['hits']['hits']]
+    win, levels = get_bias_level(biases)
+
+    aggs = data['aggregations']['bias']['values']
+    result = {
+        'buy_bias': round(float(aggs['5.0']), 2),
+        'sell_bias': round(float(aggs['80.0']), 2),
+        'mid_bias': round(float(aggs['50.0']), 2),
+        'biases': deal_data,
+        'levels': levels,
+        'win': win,
+    }
+    return result
 
 
 def deal_bias_data(data):
