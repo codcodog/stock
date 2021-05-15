@@ -112,19 +112,19 @@ class ES:
                 "high": {
                     "percentiles": {
                         "field": "high",
-                        "percents": [10, 50, 90]
+                        "percents": [80]
                     }
                 },
                 "low": {
                     "percentiles": {
                         "field": "low",
-                        "percents": [10, 50, 90]
+                        "percents": [5]
                     }
                 },
                 "close": {
                     "percentiles": {
                         "field": "close",
-                        "percents": [10, 50, 90]
+                        "percents": [50]
                     }
                 }
             }
@@ -142,3 +142,9 @@ class ES:
             }
         }
         return self.es.delete_by_query(index=STOCK_ALIAS_INDEX_NAME, body=body)
+
+    def incr_index_bias(self, code, date, bias):
+        '''增量索引 bias 数据'''
+        bias_data = {
+            '_index':
+        }

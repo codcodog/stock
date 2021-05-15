@@ -64,12 +64,12 @@ def deal_es_data(data):
 
 def deal_es_aggs_data(data):
     '''处理 es 聚合数据'''
-    high = data['high']['values']['90.0']
+    high = data['high']['values']['80.0']
     if high is None:
         high = 0
     else:
         high = round(high, 2)
-    low = data['low']['values']['10.0']
+    low = data['low']['values']['5.0']
     if low is None:
         low = 0
     else:
