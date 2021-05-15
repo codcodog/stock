@@ -4,7 +4,7 @@ from dao.dao import Dao
 from utils import config
 
 # elasticsearch 索引配置
-settings = {
+stock_settings = {
     "settings": {
         "number_of_shards": 1,
         "number_of_replicas": 3
@@ -55,8 +55,39 @@ settings = {
     }
 }
 
+# bias index settings
+bias_settings = {
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 3
+    },
+    "mappings": {
+        "properties": {
+            "code": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "date": {
+                "type": "date",
+                "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+            },
+            "bias": {
+                "type": "float"
+            }
+        }
+    }
+}
+
 # 索引固定别名
 STOCK_ALIAS_INDEX_NAME = "stock"
+
+# bias 索引固定别名
+BIAS_ALIAS_INDEX_NAME = "bias"
 
 
 class ES:
@@ -66,8 +97,14 @@ class ES:
             port=config.get("ES_PORT"),
         )
 
-    def create_index(self, index_name):
+    def create_index(self, index_name, index_type):
         '''初始化索引'''
+        if index_type == 'stock':
+            settings = stock_settings
+        elif index_type == 'bias':
+            settings = bias_settings
+        else:
+            settings = stock_settings
         return self.es.indices.create(index=index_name, body=settings)
 
     def bulk_index(self, data):
@@ -76,10 +113,9 @@ class ES:
             return None
         return helpers.bulk(self.es, data)
 
-    def create_alias(self, index_name):
+    def create_alias(self, index_name, alias_name):
         '''创建别名'''
-        return self.es.indices.put_alias(index=index_name,
-                                         name=STOCK_ALIAS_INDEX_NAME)
+        return self.es.indices.put_alias(index=index_name, name=alias_name)
 
     def get_stock_day_data(self, code, start_date, end_date):
         '''获取个股数据'''
@@ -130,7 +166,6 @@ class ES:
             }
         }
         return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)
-
 
     def remove_stock_data(self, code):
         '''删除个股数据'''

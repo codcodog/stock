@@ -268,3 +268,9 @@ class Dao:
         sql = '''select * from `stock_day` where `code`='{code}' order by `date` asc'''.format(
             code=code)
         return self.select(sql)
+
+    def get_bias_data(self, code):
+        '''获取个股 bias 数据'''
+        sql = '''select * from `bias_22` where `code`='{code}' order by `date` asc'''.format(
+            code=code)
+        return self.select(sql)
