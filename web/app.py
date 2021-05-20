@@ -82,7 +82,6 @@ def deal_es_aggs_data(data):
     return low, mid, high
 
 
-
 @app.route('/data/ttm')
 def get_ttm():
     '''获取 ttm'''
@@ -171,7 +170,6 @@ def deal_es_bias_data(data):
         'win': win,
     }
     return result
-
 
 
 def get_bias_level(biases):
@@ -373,7 +371,6 @@ def init():
     Init.run(code, start_date)
 
     return success()
-
 
 
 @app.route('/stock/info')
