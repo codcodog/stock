@@ -1,3 +1,7 @@
+.PHONY: run
+run:
+	@uwsgi www.ini
+
 .PHONY: check
 check:
 	@yapf -d -r . || true

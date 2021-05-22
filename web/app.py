@@ -4,7 +4,7 @@ import math
 from flask import Flask, g
 from flask import request
 
-from dao.dao import Dao
+from dao.dao import Dao, TYPE_STOCK, TYPE_FUND
 from elastic.es import ES
 from crawl.crawl import Crawl
 from crawl.init import Init
@@ -28,6 +28,10 @@ def get_data():
     code = request.args.get('code', '')
     if code == '':
         return error("code 不能为空")
+    code_type = request.args.get('code_type', -1)
+    code_type = int(code_type)
+    if code_type != TYPE_STOCK and code_type != TYPE_FUND:
+        return error("非法 code type")
     start_date = request.args.get('start_date', '')
     if start_date == '':
         return error('start date 不能为空')
@@ -35,6 +39,19 @@ def get_data():
     if end_date == '':
         return error('end date 不能为空')
 
+    resp = {
+        'low': 0,
+        'mid': 0,
+        'high': 0,
+        'prices': [],
+    }
+    if code_type == TYPE_STOCK:
+        resp = get_stock_data(code, start_date, end_date)
+    elif code_type == TYPE_FUND:
+        resp = get_fund_data(code, start_date, end_date)
+    return success(resp)
+
+def get_stock_data(code, start_date, end_date):
     result = g.es.get_stock_day_data(code, start_date, end_date)
     stock_data = result['hits']['hits']
     data = deal_es_data(stock_data)
@@ -47,7 +64,7 @@ def get_data():
         'high': high,
         'prices': data,
     }
-    return success(resp)
+    return resp
 
 
 def deal_es_data(data):
@@ -79,6 +96,52 @@ def deal_es_aggs_data(data):
         mid = 0
     else:
         mid = round(mid, 2)
+    return low, mid, high
+
+
+def get_fund_data(code, start_date, end_date):
+    result = g.es.get_fund_day_data(code, start_date, end_date)
+    fund_data = result['hits']['hits']
+    data = deal_es_fund_data(fund_data)
+
+    aggs_data = result['aggregations']
+    low, mid, high = deal_es_aggs_fund_data(aggs_data)
+    resp = {
+        'low': low,
+        'mid': mid,
+        'high': high,
+        'prices': data,
+    }
+    return resp
+
+
+def deal_es_fund_data(data):
+    resp_data = []
+    for row in data:
+        item = {
+            'date': row['_source']['date'],
+            'close': round(float(row['_source']['price']), 2),
+        }
+        resp_data.append(item)
+    return resp_data
+
+
+def deal_es_aggs_fund_data(data):
+    low = data['price']['values']['20.0']
+    if low is None:
+        low = 0
+    else:
+        low = round(low, 2)
+    mid = data['price']['values']['50.0']
+    if mid is None:
+        mid = 0
+    else:
+        mid = round(mid, 2)
+    high = data['price']['values']['80.0']
+    if high is None:
+        high = 0
+    else:
+        high = round(high, 2)
     return low, mid, high
 
 
@@ -229,8 +292,11 @@ def add():
     start_date = request.json.get('startDate', '')
     if start_date == '':
         return error("start_date 不能为空")
+    code_type = request.json.get('type', -1)
+    if code_type != TYPE_STOCK and code_type != TYPE_FUND:
+        return error("非法股票类型")
 
-    done = g.dao.add_stock(code, code_name, start_date)
+    done = g.dao.add_stock(code, code_name, code_type, start_date)
     if done:
         return success()
     else:
@@ -260,11 +326,12 @@ def list():
     total, rows = g.dao.get_stock_list(name, int(page), int(size))
     data = []
     for row in rows:
-        id, code, code_name, is_init, status = row
+        id, code, code_name, code_type, is_init, status = row
         uint = {
             'id': id,
             'code': code,
             'name': code_name,
+            'code_type': code_type,
             'isInit': is_init,
             'status': status
         }
@@ -367,8 +434,8 @@ def init():
         log.error("获取 {} 初始化日期失败".format(code))
         return error("服务异常.")
 
-    start_date, = result
-    Init.run(code, start_date)
+    start_date, code_type = result
+    Init.run(code, code_type, start_date)
 
     return success()
 
@@ -383,10 +450,11 @@ def info():
     if not result:
         log.error("获取 {} 基本信息失败".format(code))
         return error("服务异常.")
-    code, code_name, init_date = result
+    code, code_name, code_type, init_date = result
     data = {
         'code': code,
         'name': code_name,
+        'code_type': code_type,
         'startDate': init_date.strftime("%Y-%m-%d"),
     }
     return success(data)
@@ -411,8 +479,11 @@ def incr_sync():
     code = request.json.get('code', '')
     if code == '':
         return error("code 不能为空")
+    code_type = request.json.get('code_type', -1)
+    if code_type != TYPE_STOCK and code_type != TYPE_FUND:
+        return error("非法 code type")
     crawl = Crawl()
-    crawl.inc_crawl(code)
+    crawl.inc_crawl(code, code_type)
     return success()
 
 
@@ -443,8 +514,8 @@ def get_codes():
     result = g.dao.get_codes()
     data = []
     for row in result:
-        code, name = row
-        uint = {'code': code, 'name': name}
+        code, name, code_type = row
+        uint = {'code': code, 'name': name, 'code_type': code_type}
         data.append(uint)
     return success(data)
 

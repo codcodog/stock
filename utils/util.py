@@ -2,7 +2,7 @@ import numpy as np
 
 
 def average(data):
-    '''求取平均数'''
+    '''去除首尾，求取平均数'''
     if len(data) == 0:
         return 0
 
@@ -12,6 +12,13 @@ def average(data):
     else:
         filter_data = data
     return np.mean(filter_data)
+
+
+def standard_average(data):
+    '''标准计算，获取平均数'''
+    if len(data) == 0:
+        return 0
+    return np.mean(data)
 
 
 def median(data):
