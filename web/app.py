@@ -51,6 +51,7 @@ def get_data():
         resp = get_fund_data(code, start_date, end_date)
     return success(resp)
 
+
 def get_stock_data(code, start_date, end_date):
     result = g.es.get_stock_day_data(code, start_date, end_date)
     stock_data = result['hits']['hits']
@@ -120,7 +121,7 @@ def deal_es_fund_data(data):
     for row in data:
         item = {
             'date': row['_source']['date'],
-            'close': round(float(row['_source']['price']), 2),
+            'close': round(float(row['_source']['price']), 3),
         }
         resp_data.append(item)
     return resp_data
@@ -131,17 +132,17 @@ def deal_es_aggs_fund_data(data):
     if low is None:
         low = 0
     else:
-        low = round(low, 2)
+        low = round(low, 3)
     mid = data['price']['values']['50.0']
     if mid is None:
         mid = 0
     else:
-        mid = round(mid, 2)
+        mid = round(mid, 3)
     high = data['price']['values']['80.0']
     if high is None:
         high = 0
     else:
-        high = round(high, 2)
+        high = round(high, 3)
     return low, mid, high
 
 

@@ -28,7 +28,7 @@ def get_data(code, start_date, end_date):
         for row in soup.findAll("tbody")[0].findAll("tr"):
             tds = row.findAll('td')
             date = tds[0].contents[0]
-            price = round(float(tds[1].contents[0]), 2)
+            price = round(float(tds[1].contents[0]), 3)
             records.append((code, date, price))
 
         page += 1
