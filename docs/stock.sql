@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.22, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.21, for Linux (x86_64)
 --
--- Host: localhost    Database: invest
+-- Host: localhost    Database: stock
 -- ------------------------------------------------------
--- Server version	8.0.22
+-- Server version	8.0.21
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -52,6 +52,22 @@ CREATE TABLE `crawl_log` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `fund_day`
+--
+
+DROP TABLE IF EXISTS `fund_day`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `fund_day` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `code` char(12) NOT NULL,
+  `price` decimal(12,3) NOT NULL DEFAULT '0.000',
+  `date` date NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `price_monitor`
 --
 
@@ -91,8 +107,8 @@ CREATE TABLE `stock_day` (
   `preclose` decimal(12,4) NOT NULL DEFAULT '0.0000' COMMENT '昨日收盘价',
   `volume` bigint NOT NULL DEFAULT '0' COMMENT '成交数量（单位：股）',
   `amount` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '成交金额',
-  `turn` decimal(16,6) NOT NULL DEFAULT '0.000000' COMMENT '换手率',
-  `pe_ttm` decimal(16,6) NOT NULL DEFAULT '0.000000' COMMENT '滚动市盈率',
+  `turn` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '换手率',
+  `pe_ttm` decimal(16,4) NOT NULL DEFAULT '0.0000' COMMENT '滚动市盈率',
   `date` date NOT NULL COMMENT '日期',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -112,6 +128,7 @@ CREATE TABLE `stocks` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `code` char(12) NOT NULL DEFAULT '' COMMENT '股票代码',
   `code_name` varchar(45) NOT NULL DEFAULT '' COMMENT '股票昵称',
+  `type` tinyint unsigned NOT NULL DEFAULT '0' COMMENT '类型，0：股票，1：基金',
   `is_init` tinyint NOT NULL DEFAULT '0' COMMENT '是否已初始化，0：否，1：已初始化',
   `init_date` date NOT NULL COMMENT '初始化历史数据，开始日期',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -130,4 +147,4 @@ CREATE TABLE `stocks` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-04-24 14:37:44
+-- Dump completed on 2021-05-23 14:48:54
