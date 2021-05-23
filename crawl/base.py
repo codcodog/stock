@@ -4,7 +4,7 @@ from decimal import *
 
 from utils import config
 from dao.dao import Dao
-from elastic.es import ES, STOCK_ALIAS_INDEX_NAME
+from elastic.es import ES, STOCK_ALIAS_INDEX_NAME, FUND_ALIAS_INDEX_NAME
 from utils import util
 
 
@@ -49,12 +49,26 @@ class Base:
         for stock_data in data:
             date, code, _, _, _, close, *not_use = tuple(stock_data)
             close = Decimal(close)
-            data = self.dao.get_22_stock_data(code, date)
-            if len(data) < 22:
+            rows = self.dao.get_22_stock_data(code, date)
+            if len(rows) < 22:
                 continue
-            prices = [row[0] for row in data]
+            prices = [row[0] for row in rows]
             ave_close = util.average(prices)
             bias = round((close - ave_close) / ave_close * 100, 2)
+            self.dao.add_22_bias(code, date, bias)
+            self.es.incr_index_bias(code, date, bias)
+
+    def cal_fund_22bias(self, data):
+        '''计算基金22日bias'''
+        for fund_data in data:
+            code, date, price = tuple(fund_data)
+            price = Decimal(price)
+            rows = self.dao.get_22_fund_data(code, date)
+            if len(rows) < 22:
+                continue
+            prices = [row[0] for row in rows]
+            avg_price = util.standard_average(prices)
+            bias = round((price - avg_price) / avg_price * 100, 2)
             self.dao.add_22_bias(code, date, bias)
             self.es.incr_index_bias(code, date, bias)
 
@@ -80,3 +94,17 @@ class Base:
             }
             stocks.append(stock)
         self.es.bulk_index(stocks)
+
+    def incr_index_fund(self, data):
+        '''增量索引基金数据'''
+        funds = []
+        for item in data:
+            code, date, price = item
+            fund = {
+                '_index': FUND_ALIAS_INDEX_NAME,
+                'code': code,
+                'date': date,
+                'price': price,
+            }
+            funds.append(fund)
+        self.es.bulk_index(funds)

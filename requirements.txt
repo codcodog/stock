@@ -1,4 +1,5 @@
 baostock==0.8.8
+beautifulsoup4==4.9.3
 certifi==2020.12.5
 cffi==1.14.4
 chardet==4.0.0
@@ -21,6 +22,7 @@ pytz==2019.3
 redis==3.5.3
 requests==2.25.1
 six==1.14.0
+soupsieve==2.2.1
 urllib3==1.26.2
 uWSGI==2.0.19.1
 Werkzeug==1.0.0

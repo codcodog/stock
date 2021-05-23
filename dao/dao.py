@@ -3,6 +3,10 @@ import pymysql
 from utils import config
 from utils import log
 
+# 股票类型，0：股票，1：基金
+TYPE_STOCK = 0
+TYPE_FUND = 1
+
 
 class Dao:
     def __init__(self):
@@ -106,22 +110,22 @@ class Dao:
             code=code, start_date=start_date, end_date=end_date)
         return self.select(sql)
 
-    def add_stock(self, code, code_name, start_date):
+    def add_stock(self, code, code_name, code_type, start_date):
         '''新增股票'''
-        pre_sql = '''INSERT INTO `stocks` (`code`, `code_name`, `init_date`) 
-        VALUES ('{}', '{}', '{}')'''
-        sql = pre_sql.format(code, code_name, start_date)
+        pre_sql = '''INSERT INTO `stocks` (`code`, `code_name`, `type`, `init_date`) 
+        VALUES ('{}', '{}', {}, '{}')'''
+        sql = pre_sql.format(code, code_name, code_type, start_date)
         return self.execute(sql)
 
     def get_stock_list(self, name, page, size):
         '''获取股票列表'''
         offset = (page - 1) * size
         if name != "":
-            sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
+            sql = '''select `id`, `code`, `code_name`, `type`, `is_init`, `status`
             from `stocks` where `code_name` like '%{}%' order by `id` DESC limit {},{}'''.format(
                 name, offset, size)
         else:
-            sql = '''select `id`, `code`, `code_name`, `is_init`, `status`
+            sql = '''select `id`, `code`, `code_name`, `type`, `is_init`, `status`
             from `stocks` order by `id` DESC limit {},{}'''.format(
                 offset, size)
         data = self.select(sql)
@@ -136,7 +140,7 @@ class Dao:
 
     def get_init_date(self, code):
         '''获取某股初始化日期'''
-        sql = '''select `init_date` from `stocks` where `code`='{}' limit 1'''.format(
+        sql = '''select `init_date`, `type` from `stocks` where `code`='{}' limit 1'''.format(
             code)
         return self.get(sql)
 
@@ -160,7 +164,7 @@ class Dao:
 
     def get_stock_info(self, code):
         '''获取某股基本信息'''
-        sql = '''select `code`, `code_name`, `init_date` from `stocks`
+        sql = '''select `code`, `code_name`, `type`, `init_date` from `stocks`
         where `code`="{}" limit 1'''.format(code)
         return self.get(sql)
 
@@ -171,7 +175,7 @@ class Dao:
 
     def get_stock_codes(self):
         '''获取需要跟踪并且已经初始化的股票代码'''
-        sql = '''select `code` from `stocks` where `status` = 1 and `is_init` = 1'''
+        sql = '''select `code`, `code_type` from `stocks` where `status` = 1 and `is_init` = 1'''
         return self.select(sql)
 
     def get_stock_log(self, code):
@@ -183,7 +187,7 @@ class Dao:
 
     def get_codes(self):
         '''获取 codes 列表'''
-        sql = '''select `code`, `code_name` from `stocks` order by id DESC'''
+        sql = '''select `code`, `code_name`, `type` from `stocks` order by id DESC'''
         return self.select(sql)
 
     def delete_code(self, code):
@@ -195,6 +199,7 @@ class Dao:
         sql3 = '''delete from `crawl_log` where `code`="{}"'''.format(code)
         sql4 = '''delete from `bias_22` where `code`="{}"'''.format(code)
         sql5 = '''delete from `price_monitor` where `code`="{}"'''.format(code)
+        sql6 = '''delete from `fund_day` where `code`="{}"'''.format(code)
 
         try:
             self.cursor.execute(sql1)
@@ -202,6 +207,7 @@ class Dao:
             self.cursor.execute(sql3)
             self.cursor.execute(sql4)
             self.cursor.execute(sql5)
+            self.cursor.execute(sql6)
             self.conn.commit()
             return True
         except Exception as err:
@@ -273,4 +279,28 @@ class Dao:
         '''获取个股 bias 数据'''
         sql = '''select * from `bias_22` where `code`='{code}' order by `date` asc'''.format(
             code=code)
+        return self.select(sql)
+
+    def multi_add_fund_data(self, data):
+        '''批量新增基金数据'''
+        pre_sql = '''INSERT INTO `fund_day` (`code`, `date`, `price`) VALUES '''
+        tpl = "('{}', '{}', {}),"
+        multi_tpl = ""
+        i = 0
+        for fund_data in data:
+            multi_tpl += tpl.format(*fund_data)
+            i = i + 1
+            if i % 200 == 0 or i == len(data):
+                sql = pre_sql + multi_tpl
+                sql = sql.rstrip(",")
+                self.execute(sql)
+
+    def get_22_fund_data(self, code, date):
+        sql = '''select `price` from `fund_day` where `code`='{}' and date <='{}' order by date DESC limit 22'''.format(
+            code, date)
+        return self.select(sql)
+
+    def get_fund_day_data(self, code):
+        sql = '''select * from `fund_day` where `code`='{}' order by `date` ASC'''.format(
+            code)
         return self.select(sql)

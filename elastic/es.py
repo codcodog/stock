@@ -83,8 +83,39 @@ bias_settings = {
     }
 }
 
+# fund index settings
+fund_settings = {
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 3
+    },
+    "mappings": {
+        "properties": {
+            "code": {
+                "type": "text",
+                "fields": {
+                    "keyword": {
+                        "type": "keyword",
+                        "ignore_above": 256
+                    }
+                }
+            },
+            "date": {
+                "type": "date",
+                "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis"
+            },
+            "price": {
+                "type": "float"
+            }
+        }
+    }
+}
+
 # 索引固定别名
 STOCK_ALIAS_INDEX_NAME = "stock"
+
+# 基金索引固定名
+FUND_ALIAS_INDEX_NAME = "fund"
 
 # bias 索引固定别名
 BIAS_ALIAS_INDEX_NAME = "bias"
@@ -103,6 +134,8 @@ class ES:
             settings = stock_settings
         elif index_type == 'bias':
             settings = bias_settings
+        elif index_type == 'fund':
+            settings = fund_settings
         else:
             settings = stock_settings
         return self.es.indices.create(index=index_name, body=settings)
@@ -167,6 +200,44 @@ class ES:
         }
         return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)
 
+    def get_fund_day_data(self, code, start_date, end_date):
+        '''获取个股数据'''
+        body = {
+            "query": {
+                "bool": {
+                    "must": [{
+                        "term": {
+                            "code.keyword": {
+                                "value": code,
+                            }
+                        }
+                    }, {
+                        "range": {
+                            "date": {
+                                "gte": start_date,
+                                "lte": end_date,
+                            }
+                        }
+                    }]
+                }
+            },
+            "size": 1000,
+            "sort": [{
+                "date": {
+                    "order": "asc"
+                }
+            }],
+            "aggs": {
+                "price": {
+                    "percentiles": {
+                        "field": "price",
+                        "percents": [20, 50, 80]
+                    }
+                }
+            }
+        }
+        return self.es.search(index=FUND_ALIAS_INDEX_NAME, body=body)
+
     def remove_stock_data(self, code):
         '''删除个股数据'''
         body = {
@@ -177,6 +248,7 @@ class ES:
             }
         }
         self.es.delete_by_query(index=STOCK_ALIAS_INDEX_NAME, body=body)
+        self.es.delete_by_query(index=FUND_ALIAS_INDEX_NAME, body=body)
         self.es.delete_by_query(index=BIAS_ALIAS_INDEX_NAME, body=body)
 
     def incr_index_bias(self, code, date, bias):

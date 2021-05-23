@@ -1,6 +1,6 @@
 import sys
-from elastic.es import ES, STOCK_ALIAS_INDEX_NAME, BIAS_ALIAS_INDEX_NAME
-from dao.dao import Dao
+from elastic.es import ES, STOCK_ALIAS_INDEX_NAME, BIAS_ALIAS_INDEX_NAME, FUND_ALIAS_INDEX_NAME
+from dao.dao import Dao, TYPE_STOCK, TYPE_FUND
 from time import localtime, strftime, time
 from datetime import datetime
 
@@ -15,7 +15,9 @@ def index_all_stocks():
     es.create_index(index_name, 'stock')
 
     codes = dao.get_codes()
-    for code, _ in codes:
+    for code, _, code_type in codes:
+        if code_type == TYPE_FUND:
+            continue
         data = dao.get_stock_day_data(code)
         stocks = []
         for item in data:
@@ -47,7 +49,7 @@ def index_bias():
     es.create_index(index_name, 'bias')
 
     codes = dao.get_codes()
-    for code, _ in codes:
+    for code, _, _ in codes:
         data = dao.get_bias_data(code)
         bias_data = []
         for item in data:
@@ -65,6 +67,32 @@ def index_bias():
     es.create_alias(index_name, BIAS_ALIAS_INDEX_NAME)
 
 
+def index_fund():
+    '''全量索引基金数据'''
+    index_name = "fund.{}".format(strftime("%Y%m%d%H%M%S", localtime()))
+    es.create_index(index_name, 'fund')
+
+    codes = dao.get_codes()
+    for code, _, code_type in codes:
+        if code_type == TYPE_STOCK:
+            continue
+        data = dao.get_fund_day_data(code)
+        funds = []
+        for item in data:
+            _, code, price, d = item
+            fund = {
+                '_index': index_name,
+                '_source': {
+                    'code': code,
+                    'price': price,
+                    'date': d.strftime("%Y-%m-%d"),
+                }
+            }
+            funds.append(fund)
+        es.bulk_index(funds)
+    es.create_alias(index_name, FUND_ALIAS_INDEX_NAME)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("invalid params")
@@ -75,5 +103,7 @@ if __name__ == '__main__':
         index_all_stocks()
     elif t == 'bias':
         index_bias()
+    elif t == 'fund':
+        index_fund()
     else:
         print("invalid type")
