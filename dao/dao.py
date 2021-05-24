@@ -175,7 +175,7 @@ class Dao:
 
     def get_stock_codes(self):
         '''获取需要跟踪并且已经初始化的股票代码'''
-        sql = '''select `code`, `code_type` from `stocks` where `status` = 1 and `is_init` = 1'''
+        sql = '''select `code`, `type` from `stocks` where `status` = 1 and `is_init` = 1'''
         return self.select(sql)
 
     def get_stock_log(self, code):
