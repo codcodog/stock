@@ -556,6 +556,28 @@ def user_info():
     return success(data)
 
 
+@app.route('/stock/data/rebuild', methods=['post'])
+def rebuild_data():
+    '''重建数据'''
+    code = request.json.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+
+    done = g.dao.del_code(code)
+    if not done:
+        return error("重建失败")
+    g.es.remove_stock_data(code)
+
+    result = g.dao.get_init_date(code)
+    if not result:
+        log.error("获取 {} 初始化日期失败".format(code))
+        return error("服务异常.")
+
+    start_date, code_type = result
+    Init.run(code, code_type, start_date)
+    return success()
+
+
 def error(message):
     '''错误信息'''
     result = {

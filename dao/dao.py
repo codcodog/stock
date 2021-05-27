@@ -216,6 +216,26 @@ class Dao:
             self.conn.rollback()
             return False
 
+    def del_code(self, code):
+        '''重建某股'''
+        sql1 = '''delete from `stock_day` where `code`="{}"'''.format(code)
+        sql2 = '''delete from `crawl_log` where `code`="{}"'''.format(code)
+        sql3 = '''delete from `bias_22` where `code`="{}"'''.format(code)
+        sql4 = '''delete from `fund_day` where `code`="{}"'''.format(code)
+
+        try:
+            self.cursor.execute(sql1)
+            self.cursor.execute(sql2)
+            self.cursor.execute(sql3)
+            self.cursor.execute(sql4)
+            self.conn.commit()
+            return True
+        except Exception as err:
+            log.error("SQL 执行失败，err:{}, sql1:{}, sql2:{}, sql3:{}".format(
+                err, sql1, sql2, sql3))
+            self.conn.rollback()
+            return False
+
     def get_22_stock_data(self, code, date):
         '''获取某股22日数据'''
         sql = "select close from `stock_day` where `code`='{}' and date <= '{}' order by date DESC limit 22".format(
