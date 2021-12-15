@@ -301,3 +301,41 @@ class ES:
             }
         }
         return self.es.search(index=BIAS_ALIAS_INDEX_NAME, body=body)
+
+    def get_volume_data(self, code, start_date, end_date):
+        '''获取某股 volume 数据'''
+        body = {
+            "query": {
+                "bool": {
+                    "must": [{
+                        "term": {
+                            "code.keyword": {
+                                "value": code,
+                            }
+                        }
+                    }, {
+                        "range": {
+                            "date": {
+                                "gte": start_date,
+                                "lte": end_date,
+                            }
+                        }
+                    }]
+                }
+            },
+            "size": 1000,
+            "sort": [{
+                "date": {
+                    "order": "asc"
+                }
+            }],
+            "aggs": {
+                "volume": {
+                    "percentiles": {
+                        "field": "volume",
+                        "percents": [5, 50, 80]
+                    }
+                }
+            }
+        }
+        return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)
