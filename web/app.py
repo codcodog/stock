@@ -578,6 +578,42 @@ def rebuild_data():
     return success()
 
 
+@app.route('/data/volume')
+def get_volume():
+    '''获取某股volume'''
+    code = request.args.get('code', '')
+    if code == '':
+        return error("code 不能为空")
+    start_date = request.args.get('start_date')
+    if start_date == '':
+        return error('start_date 不能为空')
+    end_date = request.args.get('end_date')
+    if end_date == '':
+        return error('end_date 不能为空')
+
+    data = g.es.get_volume_data(code, start_date, end_date)
+    return success(deal_es_volume_data(data))
+
+
+def deal_es_volume_data(data):
+    deal_data = []
+    for row in data['hits']['hits']:
+        item = {
+            'date': row['_source']['date'],
+            'volume': round(float(row['_source']['volume']), 2),
+        }
+        deal_data.append(item)
+
+    aggs = data['aggregations']['volume']['values']
+    result = {
+        'low_volume': round(float(aggs['5.0']), 2),
+        'high_volume': round(float(aggs['80.0']), 2),
+        'mid_volume': round(float(aggs['50.0']), 2),
+        'volumes': deal_data,
+    }
+    return result
+
+
 def error(message):
     '''错误信息'''
     result = {
