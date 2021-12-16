@@ -333,7 +333,7 @@ class ES:
                 "volume": {
                     "percentiles": {
                         "field": "volume",
-                        "percents": [5, 50, 80]
+                        "percents": [20, 50, 80]
                     }
                 }
             }
