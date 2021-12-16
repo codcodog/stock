@@ -605,10 +605,23 @@ def deal_es_volume_data(data):
         deal_data.append(item)
 
     aggs = data['aggregations']['volume']['values']
+    if aggs['20.0'] is None:
+        low_volume = 0
+    else:
+        low_volume = round(float(aggs['20.0']), 2)
+    if aggs['50.0'] is None:
+        mid_volume = 0
+    else:
+        mid_volume = round(float(aggs['50.0']), 2)
+    if aggs['80.0'] is None:
+        high_volume = 0
+    else:
+        high_volume = round(float(aggs['80.0']), 2)
+
     result = {
-        'low_volume': round(float(aggs['5.0']), 2),
-        'high_volume': round(float(aggs['80.0']), 2),
-        'mid_volume': round(float(aggs['50.0']), 2),
+        'low_volume': low_volume,
+        'high_volume': high_volume,
+        'mid_volume': mid_volume,
         'volumes': deal_data,
     }
     return result
