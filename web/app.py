@@ -87,7 +87,7 @@ def deal_es_aggs_data(data):
         high = 0
     else:
         high = round(high, 2)
-    low = data['low']['values']['5.0']
+    low = data['low']['values']['20.0']
     if low is None:
         low = 0
     else:
@@ -226,7 +226,7 @@ def deal_es_bias_data(data):
 
     aggs = data['aggregations']['bias']['values']
     result = {
-        'buy_bias': round(float(aggs['5.0']), 2),
+        'buy_bias': round(float(aggs['20.0']), 2),
         'sell_bias': round(float(aggs['80.0']), 2),
         'mid_bias': round(float(aggs['50.0']), 2),
         'biases': deal_data,

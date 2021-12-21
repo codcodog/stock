@@ -187,7 +187,7 @@ class ES:
                 "low": {
                     "percentiles": {
                         "field": "low",
-                        "percents": [5]
+                        "percents": [20]
                     }
                 },
                 "close": {
@@ -295,7 +295,7 @@ class ES:
                 "bias": {
                     "percentiles": {
                         "field": "bias",
-                        "percents": [5, 50, 80]
+                        "percents": [20, 50, 80]
                     }
                 }
             }
