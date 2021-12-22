@@ -13,6 +13,7 @@ from utils import config
 from utils import util
 
 app = Flask(__name__)
+VOLUME_UINT = 10000 * 100 # 单位万
 
 
 @app.before_request
@@ -597,11 +598,10 @@ def get_volume():
 
 def deal_es_volume_data(data):
     deal_data = []
-    uint = 10000 # 单位万
     for row in data['hits']['hits']:
         item = {
             'date': row['_source']['date'],
-            'volume': round(float(row['_source']['volume'])/uint, 2),
+            'volume': round(float(row['_source']['volume'])/VOLUME_UINT, 2),
         }
         deal_data.append(item)
 
@@ -609,15 +609,15 @@ def deal_es_volume_data(data):
     if aggs['20.0'] is None:
         low_volume = 0
     else:
-        low_volume = round(float(aggs['20.0'])/uint, 2)
+        low_volume = round(float(aggs['20.0'])/VOLUME_UINT, 2)
     if aggs['50.0'] is None:
         mid_volume = 0
     else:
-        mid_volume = round(float(aggs['50.0'])/uint, 2)
+        mid_volume = round(float(aggs['50.0'])/VOLUME_UINT, 2)
     if aggs['80.0'] is None:
         high_volume = 0
     else:
-        high_volume = round(float(aggs['80.0'])/uint, 2)
+        high_volume = round(float(aggs['80.0'])/VOLUME_UINT, 2)
 
     result = {
         'low_volume': low_volume,
