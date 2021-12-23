@@ -195,7 +195,25 @@ class ES:
                         "field": "close",
                         "percents": [50]
                     }
-                }
+                },
+                "low_volume": {
+                    "percentiles": {
+                        "field": "volume",
+                        "percents": [20]
+                    }
+                },
+                "mid_volume": {
+                    "percentiles": {
+                        "field": "volume",
+                        "percents": [50]
+                    }
+                },
+                "high_volume": {
+                    "percentiles": {
+                        "field": "volume",
+                        "percents": [80]
+                    }
+                },
             }
         }
         return self.es.search(index=STOCK_ALIAS_INDEX_NAME, body=body)
