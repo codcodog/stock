@@ -44,7 +44,7 @@ def get_data():
         'low': 0,
         'mid': 0,
         'high': 0,
-        'prices': [],
+        'stock_data': [],
     }
     if code_type == TYPE_STOCK:
         resp = get_stock_data(code, start_date, end_date)
@@ -59,12 +59,15 @@ def get_stock_data(code, start_date, end_date):
     data = deal_es_data(stock_data)
 
     aggs_data = result['aggregations']
-    low, mid, high = deal_es_aggs_data(aggs_data)
+    aggs_result = deal_es_aggs_data(aggs_data)
     resp = {
-        'low': low,
-        'mid': mid,
-        'high': high,
-        'prices': data,
+        'low': aggs_result['low'],
+        'mid': aggs_result['mid'],
+        'high': aggs_result['high'],
+        'low_volume': aggs_result['low_volume'],
+        'mid_volume': aggs_result['mid_volume'],
+        'high_volume': aggs_result['high_volume'],
+        'stock_data': data,
     }
     return resp
 
@@ -76,6 +79,7 @@ def deal_es_data(data):
         item = {
             'date': row['_source']['date'],
             'close': round(float(row['_source']['close']), 2),
+            'volume': round(float(row['_source']['volume'])/VOLUME_UINT, 2),
         }
         resp_data.append(item)
     return resp_data
@@ -98,7 +102,30 @@ def deal_es_aggs_data(data):
         mid = 0
     else:
         mid = round(mid, 2)
-    return low, mid, high
+    low_volume = data['low_volume']['values']['20.0']
+    if low_volume is None:
+        low_volume = 0
+    else:
+        low_volume = round(low_volume/VOLUME_UINT, 2)
+    mid_volume = data['mid_volume']['values']['50.0']
+    if mid_volume is None:
+        mid_volume = 0
+    else:
+        mid_volume = round(mid_volume/VOLUME_UINT, 2)
+    high_volume = data['high_volume']['values']['80.0']
+    if high_volume is None:
+        high_volume = 0
+    else:
+        high_volume = round(high_volume/VOLUME_UINT, 2)
+    resp = {
+        'low': low,
+        'mid': mid,
+        'high': high,
+        'low_volume': low_volume,
+        'mid_volume': mid_volume,
+        'high_volume': high_volume,
+    }
+    return resp
 
 
 def get_fund_data(code, start_date, end_date):
